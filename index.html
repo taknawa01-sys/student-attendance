@@ -131,7 +131,13 @@
                     <button onclick="markAll('present')" class="text-xs font-bold bg-green-100 text-green-700 px-4 py-2 rounded-lg hover:bg-green-200 transition shadow-sm hover:shadow">
                         <i class="fa-solid fa-check-double mr-1"></i> มาครบ
                     </button>
-                    <div class="w-px h-5 bg-slate-300 mx-2"></div>
+                    
+                    <!-- Reset Button -->
+                    <button onclick="resetToday()" class="text-xs font-bold bg-red-50 text-red-600 px-3 py-2 rounded-lg hover:bg-red-100 transition shadow-sm border border-red-100" title="ล้างข้อมูลวันนี้">
+                        <i class="fa-solid fa-rotate-left mr-1"></i> รีเซ็ต
+                    </button>
+                    
+                    <div class="w-px h-5 bg-slate-300 mx-1"></div>
                     <button onclick="openManageStudentsModal()" class="text-xs font-medium bg-white border border-slate-200 text-slate-600 px-3 py-2 rounded-lg hover:bg-slate-50 transition shadow-sm">
                         <i class="fa-solid fa-user-pen mr-1"></i> แก้ไข
                     </button>
@@ -545,6 +551,14 @@
             if(!appData.attendance[key]) appData.attendance[key]={};
             r.students.forEach((_,i) => appData.attendance[key][i]=s);
             saveData(); renderMain();
+        }
+        function resetToday() {
+            if(!confirm('ต้องการล้างสถานะการเช็คชื่อของ "วันนี้" ทั้งหมดหรือไม่?')) return;
+            const key = `${currentCourseId}_${document.getElementById('dateInput').value}`;
+            delete appData.attendance[key];
+            delete appData.notes[key];
+            saveData();
+            renderMain();
         }
         function updateStats() {
             if(!currentCourseId) return;
