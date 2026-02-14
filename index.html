@@ -9,7 +9,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="ระบบเช็คชื่อ">
     
-    <title>ระบบเช็คชื่อนักเรียน</title>
+    <title>ระบบเช็คชื่อนักเรียนครูอลิสา</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -22,7 +22,6 @@
         body { 
             font-family: 'Prompt', sans-serif; 
             -webkit-tap-highlight-color: transparent;
-            /* พื้นหลังลายจุดสวยงาม */
             background-color: #f8fafc;
             background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
             background-size: 24px 24px;
@@ -31,12 +30,10 @@
         ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         
-        /* Loading Overlay */
         #loadingOverlay { backdrop-filter: blur(4px); }
         .spinner { border: 3px solid rgba(255, 255, 255, 0.3); border-radius: 50%; border-top: 3px solid #fff; width: 30px; height: 30px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
-        /* Logo Animation */
         @keyframes float {
             0% { transform: translateY(0px); }
             50% { transform: translateY(-3px); }
@@ -53,14 +50,13 @@
     <!-- Navbar -->
     <nav class="bg-indigo-600/95 backdrop-blur-sm text-white shadow-lg sticky top-0 z-40 pt-safe transition-all duration-300 border-b border-white/10" id="navbar">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-20"> <!-- เพิ่มความสูง Navbar -->
+            <div class="flex items-center justify-between h-20">
                 <div class="flex items-center gap-4 group cursor-default">
-                    <!-- Logo & Animation -->
                     <div class="logo-icon bg-white/20 p-3 rounded-2xl shadow-inner backdrop-blur-md group-hover:bg-white/30 transition-colors">
                         <i class="fa-solid fa-user-check text-2xl text-white"></i>
                     </div>
                     <div class="flex flex-col justify-center">
-                        <h1 class="font-bold text-2xl leading-none tracking-tight text-white drop-shadow-md">ระบบบันทึกเวลาเรียนของครูอลิสา</h1>
+                        <h1 class="font-bold text-2xl leading-none tracking-tight text-white drop-shadow-md">ระบบเช็คชื่อนักเรียนครูอลิสา</h1>
                         <span id="syncStatus" class="text-[11px] text-indigo-100 flex items-center gap-1.5 mt-1 opacity-90 font-light bg-indigo-700/40 px-2 py-0.5 rounded-full w-fit backdrop-blur-md border border-white/10">
                             <i class="fa-solid fa-circle text-[6px]"></i> Offline Mode
                         </span>
@@ -68,18 +64,15 @@
                 </div>
                 
                 <div class="flex items-center gap-3">
-                    <!-- Stats Button (Updated) -->
                     <button onclick="openStatsModal()" class="flex items-center gap-2 bg-indigo-500/50 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl transition border border-indigo-400/30 shadow-sm" title="ดูสรุปผล">
                         <i class="fa-solid fa-chart-pie text-lg"></i>
                         <span class="font-medium text-sm hidden md:inline">สรุปผล</span>
                     </button>
 
-                    <!-- Cloud Button -->
                     <button onclick="openSyncModal()" class="bg-white/10 hover:bg-white/20 text-white p-2.5 rounded-xl transition backdrop-blur-md" title="ตั้งค่า Cloud">
                         <i class="fa-solid fa-cloud text-lg"></i>
                     </button>
                     
-                    <!-- Export Button -->
                     <button onclick="exportToCSV()" class="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-xl text-sm font-medium transition shadow-lg shadow-emerald-500/20 flex items-center gap-2 border-b-2 border-emerald-700 active:border-b-0 active:translate-y-[2px]">
                         <i class="fa-solid fa-file-export"></i> <span class="hidden sm:inline">Export</span>
                     </button>
@@ -176,6 +169,14 @@
                     </div>
                 </div>
             </div>
+
+            <!-- NEW: Sticky Footer for Confirmation -->
+            <div id="saveFooter" class="p-4 border-t border-slate-100 bg-slate-50/80 backdrop-blur-sm flex justify-center sticky bottom-0 z-20">
+                <button onclick="confirmAndSync()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-xl shadow-lg shadow-indigo-200 font-bold text-base md:text-lg flex items-center gap-3 transition transform active:scale-95 w-full md:w-auto justify-center">
+                    <i class="fa-solid fa-cloud-arrow-up text-xl"></i>
+                    <span>ยืนยันและส่งข้อมูล (Save & Sync)</span>
+                </button>
+            </div>
         </div>
     </main>
 
@@ -220,7 +221,7 @@
         </div>
     </div>
 
-    <!-- Other Modals (Add/Edit/Sync/Import) - Simplified for brevity but fully functional -->
+    <!-- Other Modals (Add/Edit/Sync/Import) -->
     <!-- Add Course -->
     <div id="addCourseModal" class="fixed inset-0 z-50 hidden"><div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeModals()"></div><div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl"><h3 class="font-bold mb-4 text-lg text-slate-800">เพิ่มรายวิชา</h3><div class="space-y-4"><input id="newSubjectName" placeholder="ชื่อวิชา (เช่น คณิต)" class="w-full border border-slate-300 p-3 rounded-lg"><div class="relative"><input id="newRoomName" list="existingRooms" placeholder="ห้อง (เช่น ม.1/1)" class="w-full border border-slate-300 p-3 rounded-lg"><datalist id="existingRooms"></datalist></div><p class="text-xs text-slate-400 bg-slate-50 p-2 rounded"><i class="fa-solid fa-circle-info mr-1"></i>ใส่ชื่อห้องเดิมเพื่อใช้รายชื่อเด็กกลุ่มเดิม</p></div><div class="flex justify-end gap-2 mt-6"><button onclick="closeModals()" class="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg">ยกเลิก</button><button onclick="addNewCourse()" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 shadow-lg shadow-indigo-200 font-medium">บันทึก</button></div></div></div>
 
@@ -281,15 +282,28 @@
 
         function triggerAutoSync() {
             if(!appData.config.gasUrl) return;
-            
-            // UI shows "Waiting to sync..."
-            updateSyncStatus('waiting');
-            
             // Debounce: Wait 3 seconds after last action
+            updateSyncStatus('waiting');
             if(syncTimeout) clearTimeout(syncTimeout);
             syncTimeout = setTimeout(() => {
                 uploadToCloud(true); // true = silent mode
             }, 3000);
+        }
+
+        // NEW: Manual Confirm and Force Sync
+        function confirmAndSync() {
+            // 1. Force Local Save First
+            localStorage.setItem('teacherAttendanceSystem', JSON.stringify(appData));
+            updateStats();
+
+            // 2. Check Cloud Config
+            if (appData.config.gasUrl) {
+                // If Cloud Configured, Force Upload (Not Silent)
+                uploadToCloud(false); 
+            } else {
+                // If No Cloud, Just Alert Local Save
+                alert('✅ บันทึกข้อมูลลงเครื่องเรียบร้อย\n(ข้อมูลถูกเก็บในเครื่องนี้แล้ว หากต้องการสำรองข้อมูลออนไลน์ กรุณาตั้งค่า Cloud)');
+            }
         }
 
         function updateSyncStatus(status) {
@@ -310,29 +324,30 @@
 
         async function uploadToCloud(silent = false) {
             if(!appData.config.gasUrl) return;
-            if(!silent) showLoading('กำลังอัปโหลด...');
+            if(!silent) showLoading('กำลังส่งข้อมูลขึ้น Cloud...');
             else updateSyncStatus('syncing');
 
             try {
-                // Important: Save URL config locally first
-                appData.config.gasUrl = document.getElementById('gasUrlInput').value;
+                appData.config.gasUrl = document.getElementById('gasUrlInput').value || appData.config.gasUrl;
                 
-                // Use fetch with text/plain to avoid CORS preflight complexity in simple GAS Web Apps
                 await fetch(appData.config.gasUrl, {
                     method: 'POST',
-                    mode: 'no-cors', // We can't read response in no-cors, but it sends data
+                    mode: 'no-cors', 
                     headers: { 'Content-Type': 'text/plain' },
                     body: JSON.stringify(appData)
                 });
                 
-                // Since no-cors returns opaque response, we assume success if no network error
                 updateSyncStatus('success');
-                if(!silent) { hideLoading(); alert('อัปโหลดเรียบร้อย'); closeModals(); }
+                if(!silent) { 
+                    hideLoading(); 
+                    // Toast or SweetAlert is better, but alert is robust
+                    alert('✅ ส่งข้อมูลขึ้น Cloud สำเร็จ!'); 
+                }
 
             } catch (e) {
                 console.error(e);
                 updateSyncStatus('error');
-                if(!silent) { hideLoading(); alert('เกิดข้อผิดพลาด: ' + e.message); }
+                if(!silent) { hideLoading(); alert('เกิดข้อผิดพลาดในการส่งข้อมูล: ' + e.message); }
             }
         }
 
@@ -340,7 +355,7 @@
         function openStatsModal() {
             if(!currentCourseId) return;
             document.getElementById('statsModal').classList.remove('hidden');
-            switchStatTab('daily'); // Load Daily by default
+            switchStatTab('daily'); 
         }
 
         function switchStatTab(tab) {
@@ -352,19 +367,14 @@
 
         function renderChart() {
             const ctx = document.getElementById('attendanceChart').getContext('2d');
-            
-            // Destroy previous chart
             if(chartInstance) chartInstance.destroy();
 
-            // Calculate Data based on Tab
             const counts = calculateStats(currentStatTab);
             const total = counts.present + counts.absent + counts.late + counts.leave;
             
-            // Update Title
             const titles = { 'daily': 'วันนี้', 'weekly': 'สัปดาห์นี้', 'monthly': 'เดือนนี้' };
             document.getElementById('chartTitle').innerText = `สรุปยอดรวม (${titles[currentStatTab]})`;
 
-            // Render Chart
             chartInstance = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
@@ -382,7 +392,6 @@
                 }
             });
 
-            // Update Table
             const tbody = document.getElementById('statTableBody');
             tbody.innerHTML = '';
             const labels = [
@@ -422,12 +431,6 @@
                 if(period === 'daily') {
                     include = (dateStr === document.getElementById('dateInput').value);
                 } else if (period === 'weekly') {
-                    // Check if within same week (Sun-Sat)
-                    const d = new Date(today);
-                    const day = d.getDay();
-                    const diff = d.getDate() - day + (day == 0 ? -6:1) - 1; // Adjust to Monday start? Let's use simple 7 days range or Calendar week
-                    // Simple Logic: Same ISO Week? Or +/- 3 days?
-                    // Let's do Calendar Week (Sun-Sat) of the selected Date
                     const startOfWeek = new Date(today); startOfWeek.setDate(today.getDate() - today.getDay());
                     const endOfWeek = new Date(today); endOfWeek.setDate(today.getDate() + (6 - today.getDay()));
                     include = (recDate >= startOfWeek && recDate <= endOfWeek);
@@ -438,15 +441,12 @@
                 if(include) {
                     const records = appData.attendance[key];
                     room.students.forEach((_, i) => {
-                        const s = records[i] || 'present'; // Count existing records. If not checked? Assumed present or ignore?
-                        // Only count if the Key exists, meaning attendance was taken.
                         if(records[i]) counts[records[i]]++;
                     });
                 }
             });
             return counts;
         }
-
 
         // --- UI Rendering ---
         function renderCourseSelector() {
@@ -472,10 +472,12 @@
                 document.getElementById('noStudentsState').classList.add('flex');
                 document.getElementById('studentTableBody').innerHTML = '';
                 document.getElementById('studentCountBadge').innerText = '0';
+                document.getElementById('saveFooter').classList.add('hidden'); // Hide footer if no students
             } else {
                 document.getElementById('noStudentsState').classList.add('hidden');
                 document.getElementById('noStudentsState').classList.remove('flex');
                 document.getElementById('studentCountBadge').innerText = room.students.length;
+                document.getElementById('saveFooter').classList.remove('hidden'); // Show footer
                 renderRows(room.students);
             }
             updateStats();
@@ -494,7 +496,6 @@
                 const txt = {present:'มา',absent:'ขาด',late:'สาย',leave:'ลา'}[t];
                 const active = (s||'present')===t;
                 
-                // Style adjustment for Text+Icon
                 const baseClass = "px-2 py-1.5 rounded-md flex items-center gap-1.5 text-xs transition border";
                 const activeClass = `bg-${c}-500 text-white border-${c}-600 shadow-sm font-medium`;
                 const inactiveClass = `bg-white text-slate-400 border-slate-200 hover:bg-${c}-50 hover:text-${c}-600`;
@@ -522,7 +523,7 @@
             const key = `${currentCourseId}_${document.getElementById('dateInput').value}`;
             if(!appData.attendance[key]) appData.attendance[key]={};
             appData.attendance[key][i] = s;
-            saveData(); renderMain(); // Re-render for UI update
+            saveData(); renderMain(); 
         }
         function setNote(i, v) {
             const key = `${currentCourseId}_${document.getElementById('dateInput').value}`;
@@ -570,7 +571,7 @@
             document.getElementById('syncModal').classList.remove('hidden'); 
         }
 
-        // --- CRUD Logic (Simplified) ---
+        // --- CRUD Logic ---
         function generateUUID() { return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => (c==='x'?Math.random()*16|0:(Math.random()*16|0)&0x3|0x8).toString(16)); }
         function addNewCourse() {
             const sub = document.getElementById('newSubjectName').value.trim();
@@ -625,7 +626,11 @@
         function showLoading(t) { document.getElementById('loadingText').innerText=t; document.getElementById('loadingOverlay').classList.remove('hidden'); }
         function hideLoading() { document.getElementById('loadingOverlay').classList.add('hidden'); }
         function migrateData(old) { /* Legacy support */ appData=old; appData.version=3; saveData(); }
-        function renderEmptyState() { document.getElementById('emptyState').classList.remove('hidden'); document.getElementById('emptyState').classList.add('flex'); }
+        function renderEmptyState() { 
+            document.getElementById('emptyState').classList.remove('hidden'); 
+            document.getElementById('emptyState').classList.add('flex');
+            document.getElementById('saveFooter').classList.add('hidden'); // Hide footer on empty state
+        }
 
         function exportToCSV() {
             if (!currentCourseId) return;
@@ -648,4 +653,3 @@
     </script>
 </body>
 </html>
-
