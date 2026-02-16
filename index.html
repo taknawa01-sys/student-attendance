@@ -9,7 +9,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="ระบบเช็คชื่อ">
     
-    <title>ระบบเช็คชื่อนักเรียนครูอลิสา</title>
+    <title>ระบบเช็คชื่อนักเรียน - Teacher Assistant Pro (V3.3)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -335,12 +335,24 @@
         }
 
         async function uploadToCloud(silent = false) {
-            if(!appData.config.gasUrl) return;
+            // 1. Read input directly if available (Fixes "Enter URL first" bug)
+            const inputUrl = document.getElementById('gasUrlInput').value.trim();
+            if(inputUrl) {
+                appData.config.gasUrl = inputUrl;
+                // Don't save entire appData yet, just memory sync for this transaction
+            }
+
+            if(!appData.config.gasUrl) {
+                if(!silent) alert('กรุณาใส่ Web App URL ในช่องตั้งค่าก่อนครับ');
+                return;
+            }
+
             if(!silent) showLoading('กำลังส่งข้อมูลขึ้น Cloud...');
             else updateSyncStatus('syncing');
 
             try {
-                appData.config.gasUrl = document.getElementById('gasUrlInput').value || appData.config.gasUrl;
+                // Ensure config is saved
+                saveData();
                 
                 await fetch(appData.config.gasUrl, {
                     method: 'POST',
@@ -352,14 +364,13 @@
                 updateSyncStatus('success');
                 if(!silent) { 
                     hideLoading(); 
-                    // Toast or SweetAlert is better, but alert is robust
-                    alert('✅ ส่งข้อมูลขึ้น Cloud สำเร็จ!'); 
+                    alert('✅ ส่งข้อมูลขึ้น Cloud สำเร็จ!\n(สามารถตรวจสอบได้ที่ Google Sheets)'); 
                 }
 
             } catch (e) {
                 console.error(e);
                 updateSyncStatus('error');
-                if(!silent) { hideLoading(); alert('เกิดข้อผิดพลาดในการส่งข้อมูล: ' + e.message); }
+                if(!silent) { hideLoading(); alert('เกิดข้อผิดพลาด: ' + e.message); }
             }
         }
 
@@ -635,13 +646,20 @@
         // --- Sync Actions ---
         function forceUpload() { uploadToCloud(); }
         async function forceDownload() {
-            if(!appData.config.gasUrl) return alert('ใส่ URL ก่อน');
+            // FIX: Read directly from input
+            const inputUrl = document.getElementById('gasUrlInput').value.trim();
+            if(!inputUrl) return alert('กรุณาใส่ Web App URL ของท่านก่อนครับ');
+
+            // Update state
+            appData.config.gasUrl = inputUrl;
+            saveData();
+
             showLoading('Downloading...');
             try {
                 const res = await fetch(appData.config.gasUrl);
                 const data = await res.json();
                 if(data.version) { appData=data; saveData(); window.location.reload(); }
-                else alert('Data invalid');
+                else alert('Data invalid or empty');
             } catch(e) { alert('Error: '+e.message); }
             hideLoading();
         }
