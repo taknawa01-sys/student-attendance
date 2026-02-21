@@ -9,8 +9,26 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="ระบบเช็คชื่อ">
     
-    <title>ระบบเช็คชื่อนักเรียน - Teacher Assistant Pro (V3.3)</title>
+    <title>ระบบเช็คชื่อนักเรียน</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        theme: {
+                            primary: '#005461',   // Deep Teal / Midnight Green
+                            secondary: '#018790', // Teal
+                            accent: '#00B7B5',    // Bright Cyan / Turquoise
+                            bg: '#F4F4F4',        // Off White
+                            surface: '#FFFFFF',   // Pure White
+                            text: '#1e293b'       // Slate 800
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Font Prompt -->
@@ -22,13 +40,14 @@
         body { 
             font-family: 'Prompt', sans-serif; 
             -webkit-tap-highlight-color: transparent;
-            background-color: #f8fafc;
-            background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
-            background-size: 24px 24px;
+            background-color: #F4F4F4; /* Theme BG */
+            background-image: radial-gradient(#00B7B5 0.5px, transparent 0.5px); /* Accent dots */
+            background-size: 20px 20px;
+            color: #1e293b;
         }
         .status-btn.active { transform: scale(1.05); font-weight: bold; ring-width: 2px; }
         ::-webkit-scrollbar { width: 4px; height: 4px; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #018790; border-radius: 4px; }
         
         #loadingOverlay { backdrop-filter: blur(4px); }
         .spinner { border: 3px solid rgba(255, 255, 255, 0.3); border-radius: 50%; border-top: 3px solid #fff; width: 30px; height: 30px; animation: spin 1s linear infinite; }
@@ -41,7 +60,12 @@
         }
         .logo-icon { animation: float 3s ease-in-out infinite; }
         
-        .tab-btn.active { border-bottom: 2px solid #4f46e5; color: #4f46e5; font-weight: 600; }
+        .tab-btn.active { 
+            border-bottom: 3px solid #00B7B5; 
+            color: #005461; 
+            font-weight: 700; 
+            background-color: rgba(0, 183, 181, 0.05); 
+        }
         .tab-btn { color: #64748b; }
 
         /* iOS Safe Area Support */
@@ -49,36 +73,43 @@
         .pt-safe { padding-top: env(safe-area-inset-top); }
     </style>
 </head>
-<body class="text-slate-800 min-h-screen flex flex-col">
+<body class="min-h-screen flex flex-col">
 
     <!-- Navbar -->
-    <nav class="bg-indigo-600/95 backdrop-blur-sm text-white shadow-lg sticky top-0 z-40 pt-safe transition-all duration-300 border-b border-white/10" id="navbar">
+    <nav class="bg-theme-primary/95 backdrop-blur-sm text-white shadow-lg sticky top-0 z-40 pt-safe transition-all duration-300 border-b border-white/10" id="navbar">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-20">
-                <div class="flex items-center gap-4 group cursor-default">
-                    <div class="logo-icon bg-white/20 p-3 rounded-2xl shadow-inner backdrop-blur-md group-hover:bg-white/30 transition-colors">
-                        <i class="fa-solid fa-user-check text-2xl text-white"></i>
+            <div class="flex flex-col md:flex-row items-center justify-between h-auto md:h-20 py-3 md:py-0 gap-3">
+                <div class="flex items-center gap-4 group cursor-default w-full md:w-auto justify-center md:justify-start">
+                    <div class="logo-icon bg-white/10 p-2.5 rounded-2xl shadow-inner backdrop-blur-md group-hover:bg-white/20 transition-colors border border-white/10">
+                        <i class="fa-solid fa-user-check text-xl md:text-2xl text-theme-accent"></i>
                     </div>
                     <div class="flex flex-col justify-center">
-                        <h1 class="font-bold text-2xl leading-none tracking-tight text-white drop-shadow-md">ระบบเช็คชื่อนักเรียนครูอลิสา</h1>
-                        <span id="syncStatus" class="text-[11px] text-indigo-100 flex items-center gap-1.5 mt-1 opacity-90 font-light bg-indigo-700/40 px-2 py-0.5 rounded-full w-fit backdrop-blur-md border border-white/10">
+                        <h1 class="font-bold text-lg md:text-2xl leading-none tracking-tight text-white drop-shadow-md">ระบบเช็คชื่อนักเรียนครูอลิสา</h1>
+                        <span id="syncStatus" class="text-[10px] md:text-[11px] text-white/80 flex items-center gap-1.5 mt-1 opacity-90 font-light bg-black/20 px-2 py-0.5 rounded-full w-fit backdrop-blur-md border border-white/5">
                             <i class="fa-solid fa-circle text-[6px]"></i> Offline Mode
                         </span>
                     </div>
                 </div>
                 
-                <div class="flex items-center gap-3">
-                    <button onclick="openStatsModal()" class="flex items-center gap-2 bg-indigo-500/50 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl transition border border-indigo-400/30 shadow-sm" title="ดูสรุปผล">
-                        <i class="fa-solid fa-chart-pie text-lg"></i>
-                        <span class="font-medium text-sm hidden md:inline">สรุปผล</span>
+                <div class="flex items-center gap-2 overflow-x-auto w-full md:w-auto justify-center md:justify-end pb-1 md:pb-0">
+                    <!-- Schedule Button -->
+                    <button onclick="openScheduleModal()" class="bg-white/10 hover:bg-white/20 text-white px-3 py-2 rounded-xl transition backdrop-blur-md shadow-sm border border-white/10 flex items-center gap-2 min-w-fit">
+                        <i class="fa-solid fa-calendar-days text-theme-accent"></i>
+                        <span class="text-sm font-medium">ตารางสอน</span>
                     </button>
 
-                    <button onclick="openSyncModal()" class="bg-white/10 hover:bg-white/20 text-white p-2.5 rounded-xl transition backdrop-blur-md" title="ตั้งค่า Cloud">
-                        <i class="fa-solid fa-cloud text-lg"></i>
+                    <button onclick="openStatsModal()" class="bg-white/10 hover:bg-white/20 text-white px-3 py-2 rounded-xl transition border border-white/10 shadow-sm flex items-center gap-2 min-w-fit">
+                        <i class="fa-solid fa-chart-pie text-theme-accent"></i>
+                        <span class="text-sm font-medium">สรุปผล</span>
+                    </button>
+
+                    <button onclick="openSyncModal()" class="bg-white/10 hover:bg-white/20 text-white px-3 py-2 rounded-xl transition backdrop-blur-md flex items-center gap-2 min-w-fit border border-white/10">
+                        <i class="fa-solid fa-cloud text-theme-accent"></i>
+                        <span class="text-sm font-medium">Cloud</span>
                     </button>
                     
-                    <button onclick="exportToCSV()" class="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-xl text-sm font-medium transition shadow-lg shadow-emerald-500/20 flex items-center gap-2 border-b-2 border-emerald-700 active:border-b-0 active:translate-y-[2px]">
-                        <i class="fa-solid fa-file-export"></i> <span class="hidden sm:inline">Export</span>
+                    <button onclick="exportToCSV()" class="bg-theme-secondary text-white px-4 py-2 rounded-xl text-sm font-medium transition shadow-lg hover:bg-theme-accent flex items-center gap-2 border-b-2 border-theme-primary active:border-b-0 active:translate-y-[2px] min-w-fit">
+                        <i class="fa-solid fa-file-export"></i> <span>Export</span>
                     </button>
                 </div>
             </div>
@@ -86,29 +117,47 @@
     </nav>
 
     <!-- Main Content -->
-    <main class="flex-grow max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 space-y-6 pb-32">
+    <main class="flex-grow max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 space-y-6 pb-20">
         
         <!-- Controls -->
-        <div class="bg-white/90 backdrop-blur rounded-2xl shadow-sm border border-slate-200/60 p-5 sm:p-6">
+        <div class="bg-white/90 backdrop-blur rounded-2xl shadow-sm border border-theme-secondary/20 p-5 sm:p-6">
             <div class="grid grid-cols-1 md:grid-cols-12 gap-5 items-end">
                 <div class="md:col-span-5">
-                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5 tracking-wide">รายวิชา (Course)</label>
+                    <label class="block text-xs font-bold text-theme-secondary uppercase mb-1.5 tracking-wide">รายวิชา (Course)</label>
                     <div class="flex shadow-sm rounded-lg">
-                        <select id="courseSelect" onchange="changeCourse()" class="flex-grow rounded-l-lg border-slate-300 bg-slate-50 border-y border-l py-2.5 px-3 text-slate-700 text-base focus:ring-0 focus:border-indigo-500 outline-none cursor-pointer hover:bg-white transition">
+                        <select id="courseSelect" onchange="changeCourse()" class="flex-grow rounded-l-lg border-theme-secondary/30 bg-theme-bg border-y border-l py-2.5 px-3 text-theme-primary text-base focus:ring-0 focus:border-theme-accent outline-none cursor-pointer hover:bg-white transition">
                             <!-- Options -->
                         </select>
-                        <button onclick="openAddCourseModal()" class="bg-indigo-600 text-white px-4 hover:bg-indigo-700 border border-indigo-600 border-l-0 transition"><i class="fa-solid fa-plus"></i></button>
-                        <button onclick="openEditCourseModal()" class="bg-slate-100 text-slate-600 px-4 hover:bg-slate-200 border border-slate-300 border-l-0 rounded-r-lg transition"><i class="fa-solid fa-gear"></i></button>
+                        <button onclick="openAddCourseModal()" class="bg-theme-primary text-white px-4 hover:bg-theme-secondary border border-theme-primary border-l-0 transition"><i class="fa-solid fa-plus"></i></button>
+                        <button onclick="openEditCourseModal()" class="bg-theme-bg text-theme-primary px-4 hover:bg-white border border-theme-secondary/30 border-l-0 rounded-r-lg transition"><i class="fa-solid fa-gear"></i></button>
                     </div>
                 </div>
 
-                <div class="md:col-span-3">
-                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5 tracking-wide">วันที่ (Date)</label>
-                    <input type="date" id="dateInput" onchange="loadAttendance()" class="block w-full rounded-lg border-slate-300 shadow-sm py-2.5 px-3 bg-slate-50 text-base focus:ring-indigo-500 focus:border-indigo-500 cursor-pointer hover:bg-white transition">
+                <!-- Date & Period Selector -->
+                <div class="md:col-span-4 grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-theme-secondary uppercase mb-1.5 tracking-wide">วันที่</label>
+                        <input type="date" id="dateInput" onchange="loadAttendance()" class="block w-full rounded-lg border-theme-secondary/30 shadow-sm py-2.5 px-3 bg-theme-bg text-base focus:ring-theme-accent focus:border-theme-accent cursor-pointer hover:bg-white transition text-theme-primary">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-theme-secondary uppercase mb-1.5 tracking-wide">คาบที่</label>
+                        <select id="periodSelect" onchange="loadAttendance()" class="block w-full rounded-lg border-theme-secondary/30 shadow-sm py-2.5 px-3 bg-theme-bg text-base focus:ring-theme-accent focus:border-theme-accent cursor-pointer hover:bg-white transition text-theme-primary">
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="8">8</option>
+                            <option value="9">9</option>
+                            <option value="10">10</option>
+                        </select>
+                    </div>
                 </div>
 
                 <!-- Mini Stats (Today) -->
-                <div class="md:col-span-4 grid grid-cols-4 gap-2">
+                <div class="md:col-span-3 grid grid-cols-4 gap-2">
                     <div class="bg-green-50 rounded-xl p-2 text-center border border-green-100 shadow-sm"><div class="text-[10px] text-green-600 font-bold uppercase">มา</div><div id="countPresent" class="text-xl font-bold text-green-700 leading-none mt-1">0</div></div>
                     <div class="bg-red-50 rounded-xl p-2 text-center border border-red-100 shadow-sm"><div class="text-[10px] text-red-600 font-bold uppercase">ขาด</div><div id="countAbsent" class="text-xl font-bold text-red-700 leading-none mt-1">0</div></div>
                     <div class="bg-yellow-50 rounded-xl p-2 text-center border border-yellow-100 shadow-sm"><div class="text-[10px] text-yellow-600 font-bold uppercase">สาย</div><div id="countLate" class="text-xl font-bold text-yellow-700 leading-none mt-1">0</div></div>
@@ -118,38 +167,28 @@
         </div>
 
         <!-- Student List -->
-        <div class="bg-white/90 backdrop-blur rounded-2xl shadow-lg border border-slate-200/60 overflow-hidden flex flex-col min-h-[55vh]">
-            <div class="px-5 py-4 border-b border-slate-100 bg-slate-50/50 flex flex-wrap justify-between items-center gap-3">
+        <div class="bg-white/90 backdrop-blur rounded-2xl shadow-lg border border-theme-secondary/20 overflow-hidden flex flex-col min-h-[55vh]">
+            <div class="px-5 py-4 border-b border-theme-secondary/10 bg-theme-bg/50 flex flex-wrap justify-between items-center gap-3">
                 <div class="flex items-center gap-3">
-                    <div class="bg-white p-1.5 rounded-lg shadow-sm border border-slate-100 text-indigo-500">
+                    <div class="bg-white p-1.5 rounded-lg shadow-sm border border-theme-secondary/20 text-theme-secondary">
                         <i class="fa-solid fa-list-ol"></i>
                     </div>
-                    <h2 class="font-bold text-slate-700 text-lg">รายชื่อนักเรียน</h2>
-                    <span id="studentCountBadge" class="bg-slate-200 text-slate-600 text-xs px-2.5 py-0.5 rounded-full font-bold shadow-sm">0</span>
+                    <div>
+                        <h2 class="font-bold text-theme-primary text-lg leading-none">รายชื่อนักเรียน</h2>
+                        <span id="currentPeriodBadge" class="text-[10px] text-theme-secondary font-medium">-- ไม่ได้อยู่ในตาราง --</span>
+                    </div>
+                    <span id="studentCountBadge" class="bg-theme-secondary text-white text-xs px-2.5 py-0.5 rounded-full font-bold shadow-sm">0</span>
                 </div>
-                <div class="flex items-center gap-2">
-                    <button onclick="markAll('present')" class="text-xs font-bold bg-green-100 text-green-700 px-4 py-2 rounded-lg hover:bg-green-200 transition shadow-sm hover:shadow">
-                        <i class="fa-solid fa-check-double mr-1"></i> มาครบ
-                    </button>
-                    
-                    <!-- Reset Button -->
-                    <button onclick="resetToday()" class="text-xs font-bold bg-red-50 text-red-600 px-3 py-2 rounded-lg hover:bg-red-100 transition shadow-sm border border-red-100" title="ล้างข้อมูลวันนี้">
-                        <i class="fa-solid fa-rotate-left mr-1"></i> รีเซ็ต
-                    </button>
-                    
-                    <div class="w-px h-5 bg-slate-300 mx-1"></div>
-                    <button onclick="openManageStudentsModal()" class="text-xs font-medium bg-white border border-slate-200 text-slate-600 px-3 py-2 rounded-lg hover:bg-slate-50 transition shadow-sm">
-                        <i class="fa-solid fa-user-pen mr-1"></i> แก้ไข
-                    </button>
-                    <button onclick="openImportModal()" class="text-xs font-medium bg-white border border-slate-200 text-slate-600 px-3 py-2 rounded-lg hover:bg-slate-50 transition shadow-sm">
-                        <i class="fa-solid fa-file-import mr-1"></i> Excel
-                    </button>
+                
+                <!-- Toolbar Actions -->
+                <div id="attendanceToolbar" class="flex items-center gap-2">
+                    <!-- JS will populate this -->
                 </div>
             </div>
 
             <div class="overflow-x-auto flex-grow relative">
                 <table class="w-full text-sm text-left">
-                    <thead class="text-xs text-slate-500 uppercase bg-slate-50/80 border-b sticky top-0 z-10 backdrop-blur-sm">
+                    <thead class="text-xs text-theme-primary uppercase bg-theme-secondary/10 border-b border-theme-secondary/10 sticky top-0 z-10 backdrop-blur-sm">
                         <tr>
                             <th class="px-4 py-3 text-center w-12">#</th>
                             <th class="px-4 py-3 w-24">รหัส</th>
@@ -158,76 +197,182 @@
                             <th class="px-4 py-3 min-w-[150px]">หมายเหตุ</th>
                         </tr>
                     </thead>
-                    <tbody id="studentTableBody" class="divide-y divide-slate-100"></tbody>
+                    <tbody id="studentTableBody" class="divide-y divide-theme-secondary/10"></tbody>
                 </table>
                 
                 <!-- Empty States -->
                 <div id="emptyState" class="hidden absolute inset-0 flex flex-col items-center justify-center bg-white z-0">
-                    <div class="bg-indigo-50 p-6 rounded-full mb-4 shadow-sm animate-pulse"><i class="fa-solid fa-school text-4xl text-indigo-400"></i></div>
-                    <h3 class="text-lg font-bold text-slate-700">เริ่มต้นใช้งาน</h3>
-                    <p class="text-slate-500 max-w-sm mt-1 mb-6 text-center px-4">สร้างรายวิชาใหม่ หรือเลือกวิชาที่มีอยู่เพื่อเริ่มบันทึกเวลาเรียน</p>
-                    <button onclick="openAddCourseModal()" class="bg-indigo-600 text-white px-6 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-indigo-200 hover:scale-105 transition-transform">
+                    <div class="bg-theme-bg p-6 rounded-full mb-4 shadow-sm animate-pulse"><i class="fa-solid fa-school text-4xl text-theme-accent"></i></div>
+                    <h3 class="text-lg font-bold text-theme-primary">เริ่มต้นใช้งาน</h3>
+                    <p class="text-slate-500 max-w-sm mt-1 mb-6 text-center px-4">สร้างรายวิชาใหม่ หรือตั้งค่าตารางสอนเพื่อเริ่มใช้งาน</p>
+                    <button onclick="openAddCourseModal()" class="bg-theme-primary text-white px-6 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-theme-primary/30 hover:scale-105 transition-transform">
                         <i class="fa-solid fa-plus mr-2"></i> สร้างวิชาใหม่
                     </button>
                 </div>
                 <div id="noStudentsState" class="hidden absolute inset-0 flex flex-col items-center justify-center bg-white z-0">
-                    <div class="text-slate-200 text-6xl mb-4"><i class="fa-solid fa-users-slash"></i></div>
+                    <div class="text-slate-300 text-6xl mb-4"><i class="fa-solid fa-users-slash"></i></div>
                     <p class="text-slate-500 mb-4 font-medium">ห้องเรียนนี้ยังว่างเปล่า</p>
                     <div class="flex gap-3">
-                        <button onclick="openManageStudentsModal()" class="text-indigo-600 bg-indigo-50 px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-100 transition">เพิ่มรายชื่อ</button>
-                        <button onclick="openImportModal()" class="text-emerald-600 bg-emerald-50 px-4 py-2 rounded-lg text-sm font-medium hover:bg-emerald-100 transition">นำเข้า Excel</button>
+                        <button onclick="openManageStudentsModal()" class="text-theme-primary bg-theme-bg px-4 py-2 rounded-lg text-sm font-medium hover:bg-theme-secondary/10 transition">เพิ่มรายชื่อ</button>
+                        <button onclick="openImportModal()" class="text-theme-secondary bg-white border border-theme-secondary/30 px-4 py-2 rounded-lg text-sm font-medium hover:bg-theme-bg transition">นำเข้า Excel</button>
                     </div>
                 </div>
             </div>
         </div>
     </main>
+
+    <!-- FOOTER -->
+    <footer class="w-full text-center py-4 text-theme-primary/50 text-xs font-medium pb-safe">
+        @Sittipong 2026
+    </footer>
     
-    <!-- FIXED FOOTER -->
-    <div id="saveFooter" class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 p-4 pb-safe z-30 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] flex justify-center hidden transition-transform duration-300">
-        <div class="w-full max-w-md md:max-w-none flex justify-center">
-            <button onclick="confirmAndSync()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3.5 rounded-xl shadow-lg shadow-indigo-200 font-bold text-lg flex items-center justify-center gap-3 transition transform active:scale-95 w-full md:w-auto">
+    <!-- FIXED SAVE BUTTON -->
+    <div id="saveFooter" class="fixed bottom-0 left-0 right-0 pointer-events-none p-4 pb-safe z-30 flex justify-center hidden transition-transform duration-300">
+        <div class="w-full max-w-md md:max-w-none flex justify-center pointer-events-auto">
+            <button onclick="confirmAndSync()" class="bg-theme-secondary hover:bg-theme-accent text-white px-8 py-3.5 rounded-xl shadow-lg shadow-theme-secondary/40 font-bold text-lg flex items-center justify-center gap-3 transition transform active:scale-95 w-full md:w-auto border-b-4 border-theme-primary active:border-b-0 active:translate-y-[4px]">
                 <i class="fa-solid fa-cloud-arrow-up text-xl"></i>
                 <span>ยืนยันและส่งข้อมูล (Save & Sync)</span>
             </button>
         </div>
     </div>
 
-    <!-- Modal: Statistics Dashboard -->
+    <!-- Modal: Statistics & Calendar Dashboard -->
     <div id="statsModal" class="fixed inset-0 z-50 hidden">
-        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeModals()"></div>
-        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden">
-            <div class="px-6 py-4 border-b flex justify-between items-center bg-slate-50">
-                <h3 class="font-bold text-slate-800 text-lg"><i class="fa-solid fa-chart-pie text-indigo-500 mr-2"></i>สรุปผลการเข้าเรียน</h3>
+        <div class="absolute inset-0 bg-theme-primary/60 backdrop-blur-sm" onclick="closeModals()"></div>
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden">
+            <div class="px-6 py-4 border-b flex justify-between items-center bg-theme-bg">
+                <h3 class="font-bold text-theme-primary text-lg"><i class="fa-solid fa-chart-pie text-theme-accent mr-2"></i>สรุปผลการเข้าเรียน</h3>
                 <button onclick="closeModals()" class="text-slate-400 hover:text-slate-600 w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-200 transition"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
             
-            <div class="flex border-b border-slate-200">
-                <button onclick="switchStatTab('daily')" id="tab-daily" class="tab-btn active flex-1 py-3 text-sm font-medium text-center transition hover:bg-slate-50">รายวัน</button>
-                <button onclick="switchStatTab('weekly')" id="tab-weekly" class="tab-btn flex-1 py-3 text-sm font-medium text-center transition hover:bg-slate-50">สัปดาห์นี้</button>
-                <button onclick="switchStatTab('monthly')" id="tab-monthly" class="tab-btn flex-1 py-3 text-sm font-medium text-center transition hover:bg-slate-50">เดือนนี้</button>
+            <!-- Tab Navigation -->
+            <div class="flex border-b border-theme-secondary/10 bg-white">
+                <button onclick="switchStatTab('daily')" id="tab-daily" class="tab-btn active flex-1 py-3 text-sm font-medium text-center transition hover:bg-theme-bg">รายวัน</button>
+                <button onclick="switchStatTab('weekly')" id="tab-weekly" class="tab-btn flex-1 py-3 text-sm font-medium text-center transition hover:bg-theme-bg">สัปดาห์นี้</button>
+                <button onclick="switchStatTab('monthly')" id="tab-monthly" class="tab-btn flex-1 py-3 text-sm font-medium text-center transition hover:bg-theme-bg">เดือนนี้</button>
+                <button onclick="switchStatTab('calendar')" id="tab-calendar" class="tab-btn flex-1 py-3 text-sm font-medium text-center transition hover:bg-theme-bg border-l border-slate-100 text-theme-secondary"><i class="fa-solid fa-calendar-days mr-1"></i>ปฏิทินตรวจการสอน</button>
             </div>
 
-            <div class="p-6 overflow-y-auto bg-slate-50 flex-grow">
-                <div class="bg-white p-6 rounded-2xl shadow-sm mb-5 flex flex-col items-center border border-slate-100">
-                    <h4 id="chartTitle" class="text-slate-700 font-bold mb-4 text-center text-lg">ภาพรวมวันนี้</h4>
-                    <div class="w-64 h-64 relative">
-                        <canvas id="attendanceChart"></canvas>
+            <div class="p-6 overflow-y-auto bg-white flex-grow">
+                
+                <!-- View: Calendar -->
+                <div id="view-calendar" class="hidden h-full flex flex-col">
+                    <div class="flex justify-between items-center mb-4">
+                        <button onclick="changeCalendarMonth(-1)" class="p-2 hover:bg-theme-bg rounded-lg text-theme-primary"><i class="fa-solid fa-chevron-left"></i></button>
+                        <h4 id="calendarTitle" class="font-bold text-lg text-theme-primary"></h4>
+                        <button onclick="changeCalendarMonth(1)" class="p-2 hover:bg-theme-bg rounded-lg text-theme-primary"><i class="fa-solid fa-chevron-right"></i></button>
+                    </div>
+                    <div class="grid grid-cols-7 gap-1 text-center text-xs font-bold text-slate-400 mb-2">
+                        <div>อา</div><div>จ</div><div>อ</div><div>พ</div><div>พฤ</div><div>ศ</div><div>ส</div>
+                    </div>
+                    <div id="calendarGrid" class="grid grid-cols-7 gap-1 text-sm flex-grow">
+                        <!-- Calendar Cells Generated by JS -->
+                    </div>
+                    <div class="mt-4 flex gap-4 justify-center text-xs">
+                        <div class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-green-500 block"></span> ครบถ้วน</div>
+                        <div class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-yellow-400 block"></span> มี ขาด/ลา/สาย</div>
                     </div>
                 </div>
 
-                <div class="bg-white rounded-2xl shadow-sm overflow-hidden border border-slate-100">
+                <!-- View: Charts & Tables -->
+                <div id="view-stats" class="block">
+                    <!-- Graph -->
+                    <div class="bg-theme-bg p-4 rounded-2xl shadow-sm mb-5 border border-theme-secondary/10 relative">
+                        <h4 id="chartTitle" class="text-theme-primary font-bold mb-4 text-center text-base">ภาพรวม</h4>
+                        <div class="w-full h-56 relative flex justify-center">
+                            <canvas id="attendanceChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Breakdown Table -->
+                    <h5 class="font-bold text-theme-primary mb-2 text-sm flex items-center"><i class="fa-solid fa-list mr-2 text-theme-accent"></i>สรุปแยกตามรายวิชา/ห้อง</h5>
+                    <div class="bg-white rounded-xl shadow-sm overflow-hidden border border-theme-secondary/10">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm">
+                                <thead class="bg-theme-bg text-theme-primary/70 uppercase text-xs">
+                                    <tr>
+                                        <th class="py-3 px-4 text-left font-bold">วิชา/ห้อง</th>
+                                        <th class="py-3 px-4 text-center font-bold text-green-600">มา</th>
+                                        <th class="py-3 px-4 text-center font-bold text-red-600">ขาด</th>
+                                        <th class="py-3 px-4 text-center font-bold text-yellow-600">สาย/ลา</th>
+                                        <th class="py-3 px-4 text-center font-bold">รวม</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="statBreakdownBody" class="divide-y divide-theme-secondary/10">
+                                    <!-- JS populated -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal: Schedule -->
+    <div id="scheduleModal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-theme-primary/60 backdrop-blur-sm" onclick="closeModals()"></div>
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-2xl w-full max-w-4xl h-[90vh] flex flex-col overflow-hidden">
+            <div class="px-6 py-4 border-b flex justify-between items-center bg-theme-primary text-white">
+                <h3 class="font-bold text-lg"><i class="fa-solid fa-calendar-days mr-2"></i>จัดการตารางสอน</h3>
+                <button onclick="closeModals()" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <div class="p-4 bg-theme-bg border-b border-theme-secondary/10 text-sm text-theme-primary flex items-center justify-between gap-2 flex-wrap">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-lightbulb text-theme-accent"></i>
+                    <span>ระบบจะเลือกวิชาให้ท่านอัตโนมัติเมื่อถึงเวลาเรียน</span>
+                </div>
+                <button onclick="openPeriodSettings()" class="bg-white text-theme-secondary border border-theme-secondary/30 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-slate-50 transition">
+                    <i class="fa-solid fa-clock mr-1"></i> ตั้งค่าเวลาเรียน (Period Settings)
+                </button>
+            </div>
+            <div class="flex-grow overflow-auto p-4 bg-white">
+                <div class="overflow-x-auto rounded-lg border border-theme-secondary/20 shadow-sm bg-white">
                     <table class="w-full text-sm">
-                        <thead class="bg-slate-50 text-slate-500 uppercase text-xs">
+                        <thead class="bg-theme-bg text-theme-primary uppercase text-xs">
                             <tr>
-                                <th class="py-3 px-5 text-left font-bold">สถานะ</th>
-                                <th class="py-3 px-5 text-right font-bold">จำนวน (คน)</th>
-                                <th class="py-3 px-5 text-right font-bold">คิดเป็น (%)</th>
+                                <th class="p-3 border text-center w-20 bg-theme-bg sticky left-0 z-10">วัน</th>
+                                <th class="p-3 border text-center min-w-[120px]">คาบ 1<div class="text-[9px] text-slate-400 font-normal" id="th_p1">08:30-09:20</div></th>
+                                <th class="p-3 border text-center min-w-[120px]">คาบ 2<div class="text-[9px] text-slate-400 font-normal" id="th_p2">09:20-10:10</div></th>
+                                <th class="p-3 border text-center min-w-[120px]">คาบ 3<div class="text-[9px] text-slate-400 font-normal" id="th_p3">10:10-11:00</div></th>
+                                <th class="p-3 border text-center min-w-[120px]">คาบ 4<div class="text-[9px] text-slate-400 font-normal" id="th_p4">11:00-11:50</div></th>
+                                <th class="p-3 border text-center min-w-[120px]">คาบ 5<div class="text-[9px] text-slate-400 font-normal" id="th_p5">12:40-13:30</div></th>
+                                <th class="p-3 border text-center min-w-[120px]">คาบ 6<div class="text-[9px] text-slate-400 font-normal" id="th_p6">13:30-14:20</div></th>
+                                <th class="p-3 border text-center min-w-[120px]">คาบ 7<div class="text-[9px] text-slate-400 font-normal" id="th_p7">14:20-15:10</div></th>
+                                <th class="p-3 border text-center min-w-[120px]">คาบ 8<div class="text-[9px] text-slate-400 font-normal" id="th_p8">15:10-16:00</div></th>
                             </tr>
                         </thead>
-                        <tbody id="statTableBody" class="divide-y divide-slate-100">
-                            <!-- JS populated -->
-                        </tbody>
+                        <tbody id="scheduleTableBody"></tbody>
                     </table>
+                </div>
+            </div>
+            <div class="p-4 border-t bg-white flex justify-end">
+                <button onclick="saveSchedule()" class="bg-theme-primary text-white px-6 py-2.5 rounded-lg shadow font-bold hover:bg-theme-secondary">บันทึกตารางสอน</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Period Settings -->
+    <div id="periodSettingsModal" class="fixed inset-0 z-[60] hidden">
+        <div class="absolute inset-0 bg-theme-primary/60 backdrop-blur-sm" onclick="closeModals()"></div>
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[85vh] flex flex-col">
+            <div class="px-6 py-4 border-b flex justify-between items-center bg-theme-bg rounded-t-xl">
+                <h3 class="font-bold text-theme-primary">ตั้งค่าเวลาเรียน (Period Time)</h3>
+                <button onclick="closeModals()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="p-4 bg-white text-xs text-theme-secondary border-b border-theme-secondary/10">
+                <i class="fa-solid fa-circle-info mr-1"></i> ระบบจะใช้เวลานี้ในการเลือกวิชาให้อัตโนมัติ
+            </div>
+            <div class="flex-grow overflow-y-auto p-6">
+                <div class="space-y-3" id="periodSettingsList">
+                    <!-- JS Generated -->
+                </div>
+            </div>
+            <div class="p-4 border-t bg-white rounded-b-xl flex justify-between items-center">
+                <button onclick="resetPeriodSettings()" class="text-red-500 text-sm hover:underline">รีเซ็ตค่าเริ่มต้น</button>
+                <div class="flex gap-2">
+                    <button onclick="closeModals()" class="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg">ยกเลิก</button>
+                    <button onclick="savePeriodSettings()" class="px-4 py-2 bg-theme-primary text-white rounded-lg hover:bg-theme-secondary">บันทึกเวลา</button>
                 </div>
             </div>
         </div>
@@ -235,44 +380,64 @@
 
     <!-- Other Modals (Add/Edit/Sync/Import) -->
     <!-- Add Course -->
-    <div id="addCourseModal" class="fixed inset-0 z-50 hidden"><div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeModals()"></div><div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl"><h3 class="font-bold mb-4 text-lg text-slate-800">เพิ่มรายวิชา</h3><div class="space-y-4"><input id="newSubjectName" placeholder="ชื่อวิชา (เช่น คณิต)" class="w-full border border-slate-300 p-3 rounded-lg"><div class="relative"><input id="newRoomName" list="existingRooms" placeholder="ห้อง (เช่น ม.1/1)" class="w-full border border-slate-300 p-3 rounded-lg"><datalist id="existingRooms"></datalist></div><p class="text-xs text-slate-400 bg-slate-50 p-2 rounded"><i class="fa-solid fa-circle-info mr-1"></i>ใส่ชื่อห้องเดิมเพื่อใช้รายชื่อเด็กกลุ่มเดิม</p></div><div class="flex justify-end gap-2 mt-6"><button onclick="closeModals()" class="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg">ยกเลิก</button><button onclick="addNewCourse()" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 shadow-lg shadow-indigo-200 font-medium">บันทึก</button></div></div></div>
+    <div id="addCourseModal" class="fixed inset-0 z-50 hidden"><div class="absolute inset-0 bg-theme-primary/60 backdrop-blur-sm" onclick="closeModals()"></div><div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl"><h3 class="font-bold mb-4 text-lg text-theme-primary">เพิ่มรายวิชา</h3><div class="space-y-4"><input id="newSubjectName" placeholder="ชื่อวิชา (เช่น คณิต)" class="w-full border border-theme-secondary/30 p-3 rounded-lg"><div class="relative"><input id="newRoomName" list="existingRooms" placeholder="ห้อง (เช่น ม.1/1)" class="w-full border border-theme-secondary/30 p-3 rounded-lg"><datalist id="existingRooms"></datalist></div><p class="text-xs text-slate-400 bg-theme-bg p-2 rounded"><i class="fa-solid fa-circle-info mr-1"></i>ใส่ชื่อห้องเดิมเพื่อใช้รายชื่อเด็กกลุ่มเดิม</p></div><div class="flex justify-end gap-2 mt-6"><button onclick="closeModals()" class="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg">ยกเลิก</button><button onclick="addNewCourse()" class="px-4 py-2 bg-theme-secondary text-white rounded-lg hover:bg-theme-accent shadow-lg shadow-theme-secondary/30 font-medium">บันทึก</button></div></div></div>
 
     <!-- Edit Course -->
-    <div id="editCourseModal" class="fixed inset-0 z-50 hidden"><div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeModals()"></div><div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl"><h3 class="font-bold mb-4 text-lg">แก้ไขรายวิชา</h3><label class="text-xs text-slate-500 font-bold uppercase">ชื่อวิชา</label><input id="editSubjectName" class="w-full border p-2.5 rounded-lg mb-3 mt-1"><label class="text-xs text-slate-500 font-bold uppercase">ชื่อห้อง</label><input id="editRoomName" class="w-full border p-2.5 rounded-lg mb-5 mt-1"><button onclick="saveCourseChanges()" class="w-full bg-indigo-600 text-white py-2.5 rounded-lg mb-2 hover:bg-indigo-700 transition shadow">บันทึกการแก้ไข</button><button onclick="deleteCourse()" class="w-full text-red-500 hover:bg-red-50 py-2.5 rounded-lg text-sm transition">ลบวิชานี้</button></div></div>
+    <div id="editCourseModal" class="fixed inset-0 z-50 hidden"><div class="absolute inset-0 bg-theme-primary/60 backdrop-blur-sm" onclick="closeModals()"></div><div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl"><h3 class="font-bold mb-4 text-lg text-theme-primary">แก้ไขรายวิชา</h3><label class="text-xs text-theme-secondary font-bold uppercase">ชื่อวิชา</label><input id="editSubjectName" class="w-full border p-2.5 rounded-lg mb-3 mt-1"><label class="text-xs text-theme-secondary font-bold uppercase">ชื่อห้อง</label><input id="editRoomName" class="w-full border p-2.5 rounded-lg mb-5 mt-1"><button onclick="saveCourseChanges()" class="w-full bg-theme-secondary text-white py-2.5 rounded-lg mb-2 hover:bg-theme-accent transition shadow">บันทึกการแก้ไข</button><button onclick="deleteCourse()" class="w-full text-red-500 hover:bg-red-50 py-2.5 rounded-lg text-sm transition">ลบวิชานี้</button></div></div>
 
     <!-- Manage Students -->
-    <div id="manageStudentModal" class="fixed inset-0 z-50 hidden"><div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeModals()"></div><div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-2xl w-full max-w-lg h-[80vh] flex flex-col shadow-2xl"><div class="p-5 border-b flex justify-between items-center"><h3 class="font-bold text-lg">รายชื่อนักเรียน</h3><button onclick="closeModals()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-xl"></i></button></div><div class="p-4 bg-slate-50 border-b"><div class="flex gap-2"><input id="addStuId" placeholder="รหัส" class="w-24 border rounded-lg px-3 py-2 text-sm"><input id="addStuName" placeholder="ชื่อ-สกุล" class="flex-grow border rounded-lg px-3 py-2 text-sm"><button onclick="addStudentManual()" class="bg-indigo-600 text-white px-4 rounded-lg text-sm shadow hover:bg-indigo-700">เพิ่ม</button></div></div><div class="flex-grow overflow-y-auto p-2"><table class="w-full text-sm"><tbody id="manageStudentList" class="divide-y divide-slate-100"></tbody></table></div></div></div>
+    <div id="manageStudentModal" class="fixed inset-0 z-50 hidden"><div class="absolute inset-0 bg-theme-primary/60 backdrop-blur-sm" onclick="closeModals()"></div><div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-2xl w-full max-w-lg h-[80vh] flex flex-col shadow-2xl"><div class="p-5 border-b flex justify-between items-center"><h3 class="font-bold text-lg">รายชื่อนักเรียน</h3><button onclick="closeModals()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-xl"></i></button></div><div class="p-4 bg-theme-bg border-b"><div class="flex gap-2"><input id="addStuId" placeholder="รหัส" class="w-24 border rounded-lg px-3 py-2 text-sm"><input id="addStuName" placeholder="ชื่อ-สกุล" class="flex-grow border rounded-lg px-3 py-2 text-sm"><button onclick="addStudentManual()" class="bg-theme-secondary text-white px-4 rounded-lg text-sm shadow hover:bg-theme-accent">เพิ่ม</button></div></div><div class="flex-grow overflow-y-auto p-2"><table class="w-full text-sm"><tbody id="manageStudentList" class="divide-y divide-slate-100"></tbody></table></div></div></div>
 
     <!-- Import -->
-    <div id="importModal" class="fixed inset-0 z-50 hidden"><div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeModals()"></div><div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl"><h3 class="font-bold mb-2 text-lg">นำเข้า Excel</h3><p class="text-xs text-slate-500 mb-3">ก๊อปปี้คอลัมน์ รหัส และ ชื่อ มาวางได้เลย</p><textarea id="importText" rows="6" class="w-full border border-slate-300 p-3 text-sm bg-slate-50 rounded-xl mb-4 focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="101   สมชาย&#10;102   สมหญิง"></textarea><div class="flex justify-end gap-2"><button onclick="closeModals()" class="px-4 py-2 hover:bg-slate-100 rounded-lg text-slate-600">ยกเลิก</button><button onclick="processImport()" class="px-5 py-2 bg-emerald-600 text-white rounded-lg shadow-lg shadow-emerald-200 hover:bg-emerald-700 transition">นำเข้า</button></div></div></div>
+    <div id="importModal" class="fixed inset-0 z-50 hidden"><div class="absolute inset-0 bg-theme-primary/60 backdrop-blur-sm" onclick="closeModals()"></div><div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl"><h3 class="font-bold mb-2 text-lg">นำเข้า Excel</h3><p class="text-xs text-slate-500 mb-3">ก๊อปปี้คอลัมน์ รหัส และ ชื่อ มาวางได้เลย</p><textarea id="importText" rows="6" class="w-full border border-theme-secondary/30 p-3 text-sm bg-theme-bg rounded-xl mb-4 focus:ring-2 focus:ring-theme-accent outline-none" placeholder="101   สมชาย&#10;102   สมหญิง"></textarea><div class="flex justify-end gap-2"><button onclick="closeModals()" class="px-4 py-2 hover:bg-slate-100 rounded-lg text-slate-600">ยกเลิก</button><button onclick="processImport()" class="px-5 py-2 bg-emerald-600 text-white rounded-lg shadow-lg shadow-emerald-200 hover:bg-emerald-700 transition">นำเข้า</button></div></div></div>
 
     <!-- Cloud Sync Config -->
-    <div id="syncModal" class="fixed inset-0 z-50 hidden"><div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeModals()"></div><div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl"><div class="flex items-center gap-3 mb-4"><div class="bg-indigo-100 p-2.5 rounded-full text-indigo-600"><i class="fa-solid fa-cloud text-xl"></i></div><h3 class="font-bold text-lg">ตั้งค่า Google Cloud</h3></div><p class="text-xs text-slate-500 mb-1 font-bold uppercase">Web App URL (Apps Script)</p><input id="gasUrlInput" class="w-full border p-3 rounded-lg mb-6 text-sm bg-slate-50 focus:bg-white transition"><div class="grid grid-cols-2 gap-4"><button onclick="forceUpload()" class="p-4 border-2 border-slate-100 rounded-xl hover:border-indigo-500 hover:bg-indigo-50 text-indigo-700 flex flex-col items-center transition group"><i class="fa-solid fa-cloud-arrow-up text-3xl mb-2 text-slate-300 group-hover:text-indigo-600 transition"></i><span class="font-bold">อัปโหลด</span></button><button onclick="forceDownload()" class="p-4 border-2 border-slate-100 rounded-xl hover:border-emerald-500 hover:bg-emerald-50 text-emerald-700 flex flex-col items-center transition group"><i class="fa-solid fa-cloud-arrow-down text-3xl mb-2 text-slate-300 group-hover:text-emerald-600 transition"></i><span class="font-bold">ดาวน์โหลด</span></button></div></div></div>
+    <div id="syncModal" class="fixed inset-0 z-50 hidden"><div class="absolute inset-0 bg-theme-primary/60 backdrop-blur-sm" onclick="closeModals()"></div><div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl"><div class="flex items-center gap-3 mb-4"><div class="bg-theme-bg p-2.5 rounded-full text-theme-secondary"><i class="fa-solid fa-cloud text-xl"></i></div><h3 class="font-bold text-lg text-theme-primary">ตั้งค่า Google Cloud</h3></div><p class="text-xs text-slate-500 mb-1 font-bold uppercase">Web App URL (Apps Script)</p><input id="gasUrlInput" class="w-full border p-3 rounded-lg mb-6 text-sm bg-theme-bg focus:bg-white transition"><div class="grid grid-cols-2 gap-4"><button onclick="forceUpload()" class="p-4 border-2 border-slate-100 rounded-xl hover:border-theme-secondary hover:bg-slate-50 text-theme-secondary flex flex-col items-center transition group"><i class="fa-solid fa-cloud-arrow-up text-3xl mb-2 text-slate-300 group-hover:text-theme-secondary transition"></i><span class="font-bold">อัปโหลด</span></button><button onclick="forceDownload()" class="p-4 border-2 border-slate-100 rounded-xl hover:border-emerald-500 hover:bg-emerald-50 text-emerald-700 flex flex-col items-center transition group"><i class="fa-solid fa-cloud-arrow-down text-3xl mb-2 text-slate-300 group-hover:text-emerald-600 transition"></i><span class="font-bold">ดาวน์โหลด</span></button></div></div></div>
 
     <!-- Loading -->
-    <div id="loadingOverlay" class="fixed inset-0 bg-slate-900/50 z-[100] hidden flex flex-col items-center justify-center text-white"><div class="spinner mb-4"></div><p id="loadingText" class="font-medium tracking-wide">Processing...</p></div>
+    <div id="loadingOverlay" class="fixed inset-0 bg-theme-primary/50 z-[100] hidden flex flex-col items-center justify-center text-white"><div class="spinner mb-4"></div><p id="loadingText" class="font-medium tracking-wide">Processing...</p></div>
 
     <script>
         // --- Data & State ---
-        let appData = { version: 3, rooms: {}, courses: {}, attendance: {}, notes: {}, config: { gasUrl: "" } };
+        let appData = { version: 5, rooms: {}, courses: {}, attendance: {}, notes: {}, schedule: {}, periodSettings: [], config: { gasUrl: "" } };
         let currentCourseId = null;
-        let syncTimeout = null; // For Auto-Sync debounce
-        let chartInstance = null; // For Chart.js
+        let syncTimeout = null; 
+        let chartInstance = null; 
         let currentStatTab = 'daily';
+        let scheduleInterval = null;
+        let calendarDate = new Date(); // State for Calendar View
+        let isLocked = false; // State for Read-Only mode
 
         document.addEventListener('DOMContentLoaded', () => {
             loadData();
             document.getElementById('dateInput').value = new Date().toISOString().split('T')[0];
+            
+            // Check & Init Default Periods
+            if(!appData.periodSettings || appData.periodSettings.length === 0) {
+                resetPeriodSettings(true); // Silent reset
+            }
+            
+            // Initial Auto Select
+            autoSelectFromSchedule();
+            
+            // Start Interval (Check every minute)
+            if(scheduleInterval) clearInterval(scheduleInterval);
+            scheduleInterval = setInterval(autoSelectFromSchedule, 60000);
+
             renderCourseSelector();
-            if (Object.keys(appData.courses).length > 0) {
+            
+            if (!currentCourseId && Object.keys(appData.courses).length > 0) {
                 currentCourseId = Object.keys(appData.courses)[0];
+            }
+            
+            if (currentCourseId) {
                 document.getElementById('courseSelect').value = currentCourseId;
-                renderMain();
+                renderMain(); // This will trigger lock check via loadAttendance logic effectively
             } else renderEmptyState();
             
             if(appData.config.gasUrl) {
                 document.getElementById('gasUrlInput').value = appData.config.gasUrl;
-                updateSyncStatus('ready');
+                autoSyncDown();
             }
         });
 
@@ -281,130 +446,109 @@
             const stored = localStorage.getItem('teacherAttendanceSystem');
             if (stored) {
                 const parsed = JSON.parse(stored);
-                if (!parsed.version || parsed.version < 2) migrateData(parsed);
-                else appData = parsed;
+                if (!parsed.schedule) parsed.schedule = {}; 
+                if (!parsed.periodSettings) parsed.periodSettings = [];
+                appData = parsed;
             }
         }
 
-        function saveData() {
+        function saveData(skipAutoSync = false) {
             localStorage.setItem('teacherAttendanceSystem', JSON.stringify(appData));
-            updateStats(); // Update mini stats
-            triggerAutoSync(); // Trigger Auto Cloud Sync
-        }
-
-        function triggerAutoSync() {
-            if(!appData.config.gasUrl) return;
-            // Debounce: Wait 3 seconds after last action
-            updateSyncStatus('waiting');
-            if(syncTimeout) clearTimeout(syncTimeout);
-            syncTimeout = setTimeout(() => {
-                uploadToCloud(true); // true = silent mode
-            }, 3000);
-        }
-
-        // NEW: Manual Confirm and Force Sync
-        function confirmAndSync() {
-            // 1. Force Local Save First
-            localStorage.setItem('teacherAttendanceSystem', JSON.stringify(appData));
-            updateStats();
-
-            // 2. Check Cloud Config
-            if (appData.config.gasUrl) {
-                // If Cloud Configured, Force Upload (Not Silent)
-                uploadToCloud(false); 
-            } else {
-                // If No Cloud, Just Alert Local Save
-                alert('✅ บันทึกข้อมูลลงเครื่องเรียบร้อย\n(ข้อมูลถูกเก็บในเครื่องนี้แล้ว หากต้องการสำรองข้อมูลออนไลน์ กรุณาตั้งค่า Cloud)');
+            updateStats(); 
+            if (!skipAutoSync) {
+                triggerAutoSync();
             }
         }
 
-        function updateSyncStatus(status) {
-            const el = document.getElementById('syncStatus');
-            if(status === 'waiting') {
-                el.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin text-yellow-300"></i> รอการบันทึก...`;
-            } else if (status === 'syncing') {
-                el.innerHTML = `<i class="fa-solid fa-cloud-arrow-up fa-fade text-blue-200"></i> กำลังส่งข้อมูล...`;
-            } else if (status === 'success') {
-                el.innerHTML = `<i class="fa-solid fa-check-circle text-emerald-300"></i> บันทึกแล้ว`;
-                setTimeout(() => updateSyncStatus('ready'), 3000);
-            } else if (status === 'error') {
-                el.innerHTML = `<i class="fa-solid fa-circle-exclamation text-red-300"></i> Sync Failed`;
-            } else {
-                el.innerHTML = `<i class="fa-solid fa-cloud"></i> Cloud Active`;
-            }
-        }
-
-        async function uploadToCloud(silent = false) {
-            // 1. Read input directly if available (Fixes "Enter URL first" bug)
-            const inputUrl = document.getElementById('gasUrlInput').value.trim();
-            if(inputUrl) {
-                appData.config.gasUrl = inputUrl;
-                // Don't save entire appData yet, just memory sync for this transaction
-            }
-
-            if(!appData.config.gasUrl) {
-                if(!silent) alert('กรุณาใส่ Web App URL ในช่องตั้งค่าก่อนครับ');
-                return;
-            }
-
-            if(!silent) showLoading('กำลังส่งข้อมูลขึ้น Cloud...');
-            else updateSyncStatus('syncing');
-
-            try {
-                // Ensure config is saved
-                saveData();
-                
-                await fetch(appData.config.gasUrl, {
-                    method: 'POST',
-                    mode: 'no-cors', 
-                    headers: { 'Content-Type': 'text/plain' },
-                    body: JSON.stringify(appData)
-                });
-                
-                updateSyncStatus('success');
-                if(!silent) { 
-                    hideLoading(); 
-                    alert('✅ ส่งข้อมูลขึ้น Cloud สำเร็จ!\n(สามารถตรวจสอบได้ที่ Google Sheets)'); 
-                }
-
-            } catch (e) {
-                console.error(e);
-                updateSyncStatus('error');
-                if(!silent) { hideLoading(); alert('เกิดข้อผิดพลาด: ' + e.message); }
-            }
-        }
-
-        // --- Dashboard & Chart Logic ---
+        // --- Stats & Calendar Logic (NEW & FIXED) ---
         function openStatsModal() {
-            if(!currentCourseId) return;
             document.getElementById('statsModal').classList.remove('hidden');
-            switchStatTab('daily'); 
+            switchStatTab('daily'); // Default tab
         }
 
         function switchStatTab(tab) {
             currentStatTab = tab;
+            // Update Tab UI
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(`tab-${tab}`).classList.add('active');
-            renderChart();
+            document.getElementById('tab-'+tab).classList.add('active');
+
+            // Toggle Views
+            if(tab === 'calendar') {
+                document.getElementById('view-stats').classList.add('hidden');
+                document.getElementById('view-calendar').classList.remove('hidden');
+                renderCalendar();
+            } else {
+                document.getElementById('view-calendar').classList.add('hidden');
+                document.getElementById('view-stats').classList.remove('hidden');
+                updateChartAndTable(tab);
+            }
         }
 
-        function renderChart() {
+        function updateChartAndTable(period) {
             const ctx = document.getElementById('attendanceChart').getContext('2d');
-            if(chartInstance) chartInstance.destroy();
-
-            const counts = calculateStats(currentStatTab);
-            const total = counts.present + counts.absent + counts.late + counts.leave;
+            const breakdownBody = document.getElementById('statBreakdownBody');
             
-            const titles = { 'daily': 'วันนี้', 'weekly': 'สัปดาห์นี้', 'monthly': 'เดือนนี้' };
-            document.getElementById('chartTitle').innerText = `สรุปยอดรวม (${titles[currentStatTab]})`;
+            // Determine date range
+            const today = new Date();
+            let start = new Date();
+            let end = new Date();
+            let title = "";
 
+            if (period === 'daily') {
+                title = "สถิติรายวัน (" + today.toLocaleDateString('th-TH') + ")";
+                // Start/End is today
+            } else if (period === 'weekly') {
+                const day = today.getDay();
+                const diff = today.getDate() - day + (day == 0 ? -6 : 1); 
+                start.setDate(diff);
+                end.setDate(start.getDate() + 6);
+                title = "สัปดาห์นี้ (" + start.toLocaleDateString('th-TH') + " - " + end.toLocaleDateString('th-TH') + ")";
+            } else if (period === 'monthly') {
+                start = new Date(today.getFullYear(), today.getMonth(), 1);
+                end = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+                title = "เดือนนี้ (" + start.toLocaleDateString('th-TH', { month:'long' }) + ")";
+            }
+
+            document.getElementById('chartTitle').innerText = title;
+
+            // Collect Data
+            let totals = { present: 0, absent: 0, late: 0, leave: 0 };
+            let breakdown = {}; // { "Math (1/1)": {present:0, ...} }
+
+            // Iterate through attendance keys
+            Object.keys(appData.attendance).forEach(key => {
+                const [cId, dateStr, p] = key.split('_'); // p might be undefined in old keys
+                const date = new Date(dateStr);
+                
+                // Filter by date
+                let inRange = false;
+                if(period === 'daily') inRange = dateStr === today.toISOString().split('T')[0];
+                else inRange = date >= start && date <= end;
+
+                if (inRange) {
+                    const records = appData.attendance[key];
+                    const course = appData.courses[cId];
+                    const room = course ? appData.rooms[course.roomId] : null;
+                    const name = course ? `${course.subject} (${room.name})` : "Unknown";
+
+                    if (!breakdown[name]) breakdown[name] = { present: 0, absent: 0, late: 0, leave: 0 };
+
+                    Object.values(records).forEach(status => {
+                        if (totals[status] !== undefined) totals[status]++;
+                        if (breakdown[name][status] !== undefined) breakdown[name][status]++;
+                    });
+                }
+            });
+
+            // 1. Draw Chart
+            if (chartInstance) chartInstance.destroy();
             chartInstance = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['มา', 'ขาด', 'สาย', 'ลา'],
+                    labels: ['มา', 'ขาด', 'สาย/ลา'],
                     datasets: [{
-                        data: [counts.present, counts.absent, counts.late, counts.leave],
-                        backgroundColor: ['#22c55e', '#ef4444', '#eab308', '#3b82f6'],
+                        data: [totals.present, totals.absent, totals.late + totals.leave],
+                        backgroundColor: ['#22c55e', '#ef4444', '#eab308'],
                         borderWidth: 0
                     }]
                 },
@@ -415,284 +559,405 @@
                 }
             });
 
-            const tbody = document.getElementById('statTableBody');
-            tbody.innerHTML = '';
-            const labels = [
-                {k:'present', t:'มา', c:'text-green-600'},
-                {k:'absent', t:'ขาด', c:'text-red-600'},
-                {k:'late', t:'สาย', c:'text-yellow-600'},
-                {k:'leave', t:'ลา', c:'text-blue-600'}
-            ];
-            
-            labels.forEach(l => {
-                const val = counts[l.k];
-                const pct = total > 0 ? ((val/total)*100).toFixed(1) : "0.0";
-                tbody.innerHTML += `
-                    <tr>
-                        <td class="py-2 px-4 ${l.c} font-bold">${l.t}</td>
-                        <td class="py-2 px-4 text-right font-mono">${val}</td>
-                        <td class="py-2 px-4 text-right text-slate-500">${pct}%</td>
-                    </tr>
-                `;
-            });
+            // 2. Render Table
+            breakdownBody.innerHTML = '';
+            if (Object.keys(breakdown).length === 0) {
+                breakdownBody.innerHTML = `<tr><td colspan="5" class="py-4 text-center text-slate-400">ไม่พบข้อมูลในช่วงเวลานี้</td></tr>`;
+            } else {
+                Object.keys(breakdown).forEach(name => {
+                    const d = breakdown[name];
+                    const total = d.present + d.absent + d.late + d.leave;
+                    breakdownBody.innerHTML += `
+                        <tr class="hover:bg-theme-bg transition">
+                            <td class="py-3 px-4 font-medium text-theme-primary">${name}</td>
+                            <td class="py-3 px-4 text-center text-green-600 font-bold">${d.present}</td>
+                            <td class="py-3 px-4 text-center text-red-600 font-bold">${d.absent}</td>
+                            <td class="py-3 px-4 text-center text-yellow-600 font-bold">${d.late + d.leave}</td>
+                            <td class="py-3 px-4 text-center text-slate-500 font-bold">${total}</td>
+                        </tr>
+                    `;
+                });
+            }
         }
 
-        function calculateStats(period) {
-            let counts = { present: 0, absent: 0, late: 0, leave: 0 };
-            const course = appData.courses[currentCourseId];
-            const room = appData.rooms[course.roomId];
-            if(!room) return counts;
+        // --- Calendar View Logic (Custom Dashboard) ---
+        function changeCalendarMonth(delta) {
+            calendarDate.setMonth(calendarDate.getMonth() + delta);
+            renderCalendar();
+        }
 
-            const today = new Date(document.getElementById('dateInput').value);
-            const allKeys = Object.keys(appData.attendance).filter(k => k.startsWith(currentCourseId + "_"));
+        function renderCalendar() {
+            const year = calendarDate.getFullYear();
+            const month = calendarDate.getMonth();
+            const grid = document.getElementById('calendarGrid');
+            
+            // Title
+            document.getElementById('calendarTitle').innerText = calendarDate.toLocaleDateString('th-TH', { month: 'long', year: 'numeric' });
+            
+            grid.innerHTML = '';
 
-            allKeys.forEach(key => {
-                const dateStr = key.split('_')[1];
-                const recDate = new Date(dateStr);
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+            // Empty slots
+            for (let i = 0; i < firstDay; i++) {
+                grid.innerHTML += `<div></div>`;
+            }
+
+            // Days
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const dots = getDailyDots(dateStr);
                 
-                let include = false;
-                if(period === 'daily') {
-                    include = (dateStr === document.getElementById('dateInput').value);
-                } else if (period === 'weekly') {
-                    const startOfWeek = new Date(today); startOfWeek.setDate(today.getDate() - today.getDay());
-                    const endOfWeek = new Date(today); endOfWeek.setDate(today.getDate() + (6 - today.getDay()));
-                    include = (recDate >= startOfWeek && recDate <= endOfWeek);
-                } else if (period === 'monthly') {
-                    include = (recDate.getMonth() === today.getMonth() && recDate.getFullYear() === today.getFullYear());
-                }
+                let dotHtml = '';
+                dots.forEach(color => {
+                    dotHtml += `<span class="w-2 h-2 rounded-full ${color === 'green' ? 'bg-green-500' : 'bg-yellow-400'}"></span>`;
+                });
 
-                if(include) {
+                grid.innerHTML += `
+                    <div class="h-20 border border-slate-100 rounded-lg bg-white p-1 flex flex-col items-center hover:shadow-sm transition">
+                        <span class="text-sm font-bold text-slate-600">${day}</span>
+                        <div class="flex flex-wrap justify-center gap-1 mt-1">
+                            ${dotHtml}
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function getDailyDots(dateStr) {
+            // Find all attendance records for this date
+            // Key format: courseId_date_period
+            let dots = [];
+            
+            // Collect unique course check-ins for this date
+            const checkedCourses = new Set();
+            
+            Object.keys(appData.attendance).forEach(key => {
+                if(key.includes(dateStr)) {
+                    // It matches the date. Now analyze status.
+                    // If ANY student is absent/late/leave -> Yellow. Else -> Green.
                     const records = appData.attendance[key];
-                    if (records) {
-                        room.students.forEach((_, i) => {
-                            if(records[i]) counts[records[i]]++;
-                        });
-                    }
+                    let isPerfect = true;
+                    Object.values(records).forEach(s => {
+                        if(s !== 'present') isPerfect = false;
+                    });
+                    
+                    // Add dot representation
+                    dots.push(isPerfect ? 'green' : 'yellow');
                 }
             });
-            return counts;
+            return dots;
+        }
+
+        // --- Period Settings System (Existing) ---
+        function openPeriodSettings() { renderPeriodSettings(); document.getElementById('periodSettingsModal').classList.remove('hidden'); }
+        function resetPeriodSettings(silent = false) {
+            if(!silent && !confirm('รีเซ็ตเวลาเป็นค่ามาตรฐาน (เริ่ม 08:30 น.)?')) return;
+            appData.periodSettings = [
+                { id: 1, start: '08:30', end: '09:20' }, { id: 2, start: '09:20', end: '10:10' },
+                { id: 3, start: '10:10', end: '11:00' }, { id: 4, start: '11:00', end: '11:50' },
+                { id: 5, start: '12:40', end: '13:30' }, { id: 6, start: '13:30', end: '14:20' },
+                { id: 7, start: '14:20', end: '15:10' }, { id: 8, start: '15:10', end: '16:00' }
+            ];
+            if(!silent) { saveData(); renderPeriodSettings(); }
+        }
+        function renderPeriodSettings() {
+            const container = document.getElementById('periodSettingsList'); container.innerHTML = '';
+            appData.periodSettings.forEach((p, index) => {
+                container.innerHTML += `<div class="flex items-center gap-3 p-3 bg-theme-bg rounded-lg border border-theme-secondary/20"><div class="w-16 font-bold text-theme-primary">คาบ ${p.id}</div><div class="flex items-center gap-2 flex-grow"><input type="time" id="p_start_${index}" value="${p.start}" class="border border-theme-secondary/20 rounded px-2 py-1 text-sm bg-white"><span class="text-slate-400">-</span><input type="time" id="p_end_${index}" value="${p.end}" class="border border-theme-secondary/20 rounded px-2 py-1 text-sm bg-white"></div></div>`;
+            });
+        }
+        function savePeriodSettings() {
+            const newSettings = [];
+            const inputs = document.querySelectorAll('[id^="p_start_"]');
+            inputs.forEach((input, index) => {
+                const startVal = document.getElementById(`p_start_${index}`).value;
+                const endVal = document.getElementById(`p_end_${index}`).value;
+                if(startVal && endVal) newSettings.push({ id: index + 1, start: startVal, end: endVal });
+            });
+            appData.periodSettings = newSettings; saveData(); updateScheduleHeaders(); closeModals(); alert('✅ บันทึกเวลาเรียนแล้ว'); autoSelectFromSchedule();
+        }
+        function updateScheduleHeaders() {
+            appData.periodSettings.forEach(p => { const el = document.getElementById(`th_p${p.id}`); if(el) el.innerText = `${p.start}-${p.end}`; });
+        }
+
+        // --- Schedule System ---
+        function openScheduleModal() { updateScheduleHeaders(); renderScheduleTable(); document.getElementById('scheduleModal').classList.remove('hidden'); }
+        function renderScheduleTable() {
+            const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri']; const dayNames = ['จันทร์', 'อังคาร', 'พุธ', 'พฤหัส', 'ศุกร์'];
+            const tbody = document.getElementById('scheduleTableBody'); let html = '';
+            const courses = Object.values(appData.courses); const maxPeriods = appData.periodSettings.length > 0 ? appData.periodSettings.length : 8;
+            days.forEach((dayKey, index) => {
+                html += `<tr class="border-b hover:bg-theme-bg"><td class="p-3 border font-bold text-center bg-theme-bg text-theme-primary sticky left-0 z-10">${dayNames[index]}</td>`;
+                for(let p=1; p<=maxPeriods; p++) {
+                    const key = `${dayKey}_${p}`; const val = appData.schedule[key] || "";
+                    let cellOptions = `<option value="">-- ว่าง --</option>`;
+                    courses.forEach(c => { const r = appData.rooms[c.roomId]; const isSelected = (val === c.id) ? 'selected' : ''; cellOptions += `<option value="${c.id}" ${isSelected}>${c.subject} (${r ? r.name : ''})</option>`; });
+                    html += `<td class="p-1 border min-w-[100px]"><select id="sch_${key}" class="w-full text-xs border-0 bg-transparent focus:ring-0 cursor-pointer text-center text-slate-700 font-medium hover:bg-theme-bg rounded transition">${cellOptions}</select></td>`;
+                }
+                html += `</tr>`;
+            });
+            tbody.innerHTML = html;
+        }
+        function saveSchedule() {
+            const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri']; const maxPeriods = appData.periodSettings.length > 0 ? appData.periodSettings.length : 8;
+            days.forEach(day => { for(let p=1; p<=maxPeriods; p++) { const key = `${day}_${p}`; const el = document.getElementById(`sch_${key}`); if(el) { if(el.value) appData.schedule[key] = el.value; else delete appData.schedule[key]; } } });
+            saveData(); closeModals(); alert('✅ บันทึกตารางสอนแล้ว'); autoSelectFromSchedule();
+            if(currentCourseId) { document.getElementById('courseSelect').value = currentCourseId; renderMain(); }
+        }
+
+        function autoSelectFromSchedule() {
+            const now = new Date(); const dayMap = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']; const day = dayMap[now.getDay()];
+            const hour = now.getHours(); const min = now.getMinutes(); const currentMins = hour * 60 + min; let period = 0;
+            if(appData.periodSettings && appData.periodSettings.length > 0) {
+                for(let p of appData.periodSettings) {
+                    const [sh, sm] = p.start.split(':').map(Number); const [eh, em] = p.end.split(':').map(Number);
+                    if(currentMins >= (sh*60+sm) && currentMins < (eh*60+em)) { period = p.id; break; }
+                }
+            } else {
+                if (currentMins >= 510 && currentMins < 560) period = 1; else if (currentMins >= 560 && currentMins < 610) period = 2; else if (currentMins >= 610 && currentMins < 660) period = 3; else if (currentMins >= 660 && currentMins < 710) period = 4; else if (currentMins >= 760 && currentMins < 810) period = 5; else if (currentMins >= 810 && currentMins < 860) period = 6; else if (currentMins >= 860 && currentMins < 910) period = 7; else if (currentMins >= 910 && currentMins < 960) period = 8;
+            }
+            if(period > 0) {
+                const dropdown = document.getElementById('periodSelect'); if(dropdown && dropdown.value != period) dropdown.value = period;
+                const key = `${day}_${period}`; const scheduledCourseId = appData.schedule[key];
+                const badge = document.getElementById('currentPeriodBadge');
+                if (scheduledCourseId && appData.courses[scheduledCourseId]) {
+                    if(currentCourseId !== scheduledCourseId) { currentCourseId = scheduledCourseId; document.getElementById('courseSelect').value = currentCourseId; renderMain(); }
+                    if(badge) badge.innerHTML = `<span class="bg-theme-secondary/10 text-theme-secondary px-2 py-0.5 rounded text-[10px] font-bold border border-theme-secondary/20"><i class="fa-solid fa-clock"></i> คาบ ${period}: ตามตาราง</span>`;
+                } else { if(badge) badge.innerHTML = `<span class="text-slate-400 text-[10px]">คาบ ${period}: ไม่มีเรียน</span>`; }
+            }
+        }
+
+        // --- Core System Functions ---
+        function getStorageKey() { const date = document.getElementById('dateInput').value; const p = document.getElementById('periodSelect').value; return `${currentCourseId}_${date}_p${p}`; }
+        function triggerAutoSync() { if(!appData.config.gasUrl) return; updateSyncStatus('waiting'); if(syncTimeout) clearTimeout(syncTimeout); syncTimeout = setTimeout(() => { uploadToCloud(true); }, 3000); }
+        function confirmAndSync() { localStorage.setItem('teacherAttendanceSystem', JSON.stringify(appData)); updateStats(); if (appData.config.gasUrl) { uploadToCloud(false); } else { alert('✅ บันทึกข้อมูลลงเครื่องเรียบร้อย\n(ข้อมูลถูกเก็บในเครื่องนี้แล้ว หากต้องการสำรองข้อมูลออนไลน์ กรุณาตั้งค่า Cloud)'); } }
+        function updateSyncStatus(status) {
+            const el = document.getElementById('syncStatus'); if(!el) return;
+            if(status === 'waiting') el.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin text-yellow-300"></i> รอการบันทึก...`;
+            else if (status === 'syncing') el.innerHTML = `<i class="fa-solid fa-cloud-arrow-up fa-fade text-blue-200"></i> กำลังส่งข้อมูล...`;
+            else if (status === 'downloading') el.innerHTML = `<i class="fa-solid fa-cloud-arrow-down fa-fade text-indigo-200"></i> กำลังดึงข้อมูล...`;
+            else if (status === 'success') { el.innerHTML = `<i class="fa-solid fa-check-circle text-emerald-300"></i> บันทึกแล้ว`; setTimeout(() => updateSyncStatus('ready'), 3000); }
+            else if (status === 'updated') { el.innerHTML = `<i class="fa-solid fa-check-circle text-emerald-300"></i> อัปเดตแล้ว`; setTimeout(() => updateSyncStatus('ready'), 3000); }
+            else if (status === 'error') el.innerHTML = `<i class="fa-solid fa-circle-exclamation text-red-300"></i> Sync Failed`;
+            else el.innerHTML = `<i class="fa-solid fa-cloud"></i> Cloud Active`;
+        }
+
+        async function autoSyncDown() {
+            if(!appData.config.gasUrl) return; updateSyncStatus('downloading');
+            try {
+                const res = await fetch(appData.config.gasUrl + '?t=' + new Date().getTime()); let data = await res.json(); if (typeof data === 'string') { try { data = JSON.parse(data); } catch(e) {} }
+                if(data && (data.version || data.courses)) {
+                    appData = data; if (!appData.schedule) appData.schedule = {}; if (!appData.periodSettings) appData.periodSettings = [];
+                    saveData(true); renderCourseSelector(); updateScheduleHeaders();
+                    if(currentCourseId && appData.courses[currentCourseId]) { document.getElementById('courseSelect').value = currentCourseId; renderMain(); } 
+                    else if (Object.keys(appData.courses).length > 0) { currentCourseId = Object.keys(appData.courses)[0]; document.getElementById('courseSelect').value = currentCourseId; renderMain(); }
+                    updateSyncStatus('updated');
+                } else updateSyncStatus('ready');
+            } catch(e) { console.error("Auto-sync failed", e); updateSyncStatus('error'); }
+        }
+
+        async function uploadToCloud(silent = false) {
+            const inputUrl = document.getElementById('gasUrlInput').value.trim(); if(inputUrl) appData.config.gasUrl = inputUrl;
+            if(!appData.config.gasUrl) { if(!silent) alert('กรุณาใส่ Web App URL ในช่องตั้งค่าก่อนครับ'); return; }
+            if(!silent) showLoading('กำลังส่งข้อมูลขึ้น Cloud...'); else updateSyncStatus('syncing');
+            try {
+                saveData(true); await fetch(appData.config.gasUrl, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(appData) });
+                updateSyncStatus('success'); if(!silent) { hideLoading(); alert('✅ ส่งข้อมูลขึ้น Cloud สำเร็จ!'); }
+            } catch (e) { updateSyncStatus('error'); if(!silent) { hideLoading(); alert('เกิดข้อผิดพลาด: ' + e.message); } }
+        }
+
+        async function forceDownload() {
+            const inputUrl = document.getElementById('gasUrlInput').value.trim(); if(!inputUrl) return alert('กรุณาใส่ Web App URL ของท่านก่อนครับ');
+            appData.config.gasUrl = inputUrl; saveData(true); showLoading('กำลังดึงข้อมูลจาก Cloud...');
+            try {
+                const res = await fetch(appData.config.gasUrl + '?t=' + new Date().getTime()); let data = await res.json(); if (typeof data === 'string') { try { data = JSON.parse(data); } catch(e) {} }
+                if(data && (data.version || data.courses)) {
+                    if(confirm(`พบข้อมูลบน Cloud ต้องการนำมาใช้แทนข้อมูลปัจจุบันหรือไม่?`)) {
+                        appData = data; if (!appData.schedule) appData.schedule = {}; if (!appData.periodSettings) appData.periodSettings = [];
+                        saveData(true); alert('✅ ดาวน์โหลดข้อมูลเรียบร้อยแล้ว'); window.location.reload();
+                    }
+                } else alert('⚠️ เชื่อมต่อได้ แต่ไม่พบข้อมูลที่บันทึกไว้');
+            } catch(e) { alert('❌ เกิดข้อผิดพลาดในการดาวน์โหลด: ' + e.message); } hideLoading();
+        }
+        function showLoading(t) { document.getElementById('loadingText').innerText=t; document.getElementById('loadingOverlay').classList.remove('hidden'); }
+        function hideLoading() { document.getElementById('loadingOverlay').classList.add('hidden'); }
+        function renderEmptyState() { document.getElementById('emptyState').classList.remove('hidden'); document.getElementById('emptyState').classList.add('flex'); document.getElementById('saveFooter').classList.add('hidden'); }
+
+        function exportToCSV() {
+            if (!currentCourseId) return; const c = appData.courses[currentCourseId]; const r = appData.rooms[c.roomId];
+            let csv = "\uFEFFวันที่,คาบ,รหัสนักเรียน,ชื่อ,สถานะ,หมายเหตุ\n"; const map = {present:'มา', absent:'ขาด', late:'สาย', leave:'ลา'};
+            const keys = Object.keys(appData.attendance).filter(k => k.startsWith(currentCourseId)).sort();
+            keys.forEach(k => { const parts = k.split('_'); const d = parts[1]; const p = parts[2] ? parts[2].replace('p', '') : '1'; r.students.forEach((s, i) => { const status = appData.attendance[k]?.[i]; const statusText = status ? map[status] : '-'; csv += `${d},${p},"${s.id}","${s.name}",${statusText},"${appData.notes[k]?.[i]||''}"\n`; }); });
+            const link = document.createElement("a"); link.href = URL.createObjectURL(new Blob([csv], {type:'text/csv;charset=utf-8;'})); link.download = `CheckName_${c.subject}.csv`; document.body.appendChild(link); link.click(); document.body.removeChild(link);
         }
 
         // --- UI Rendering ---
         function renderCourseSelector() {
             const sel = document.getElementById('courseSelect'); sel.innerHTML = '';
-            Object.values(appData.courses).forEach(c => {
-                const r = appData.rooms[c.roomId];
-                sel.innerHTML += `<option value="${c.id}">${c.subject} (${r?r.name:'?'})</option>`;
-            });
+            Object.values(appData.courses).forEach(c => { const r = appData.rooms[c.roomId]; sel.innerHTML += `<option value="${c.id}">${c.subject} (${r?r.name:'?'})</option>`; });
             const dl = document.getElementById('existingRooms'); dl.innerHTML = '';
             new Set(Object.values(appData.rooms).map(r=>r.name)).forEach(n=> dl.innerHTML+=`<option value="${n}">`);
         }
-
         function changeCourse() { currentCourseId = document.getElementById('courseSelect').value; renderMain(); }
-        
         function renderMain() {
             if(!currentCourseId || !appData.courses[currentCourseId]) return renderEmptyState();
             document.getElementById('emptyState').classList.add('hidden');
-            const course = appData.courses[currentCourseId];
-            const room = appData.rooms[course.roomId];
+            const course = appData.courses[currentCourseId]; const room = appData.rooms[course.roomId];
             
-            if(!room || room.students.length===0) {
-                document.getElementById('noStudentsState').classList.remove('hidden');
-                document.getElementById('noStudentsState').classList.add('flex');
-                document.getElementById('studentTableBody').innerHTML = '';
-                document.getElementById('studentCountBadge').innerText = '0';
-                document.getElementById('saveFooter').classList.add('hidden'); // Hide footer if no students
-            } else {
-                document.getElementById('noStudentsState').classList.add('hidden');
-                document.getElementById('noStudentsState').classList.remove('flex');
-                document.getElementById('studentCountBadge').innerText = room.students.length;
-                document.getElementById('saveFooter').classList.remove('hidden'); // Show footer
-                renderRows(room.students);
+            // Check Lock State logic
+            const selDate = document.getElementById('dateInput').value;
+            const today = new Date().toISOString().split('T')[0];
+            // If date is different from today, default to LOCKED (unless user manually unlocked)
+            // Note: simple implementation re-locks when you switch dates/courses to prevent accidental edits elsewhere.
+            if(selDate !== today && !isLocked) {
+                 isLocked = true; 
+            } else if (selDate === today) {
+                 isLocked = false;
             }
+
+            const p = document.getElementById('periodSelect').value; const now = new Date(); const day = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][now.getDay()]; const schKey = `${day}_${p}`; const isScheduled = appData.schedule[schKey] === currentCourseId; const badge = document.getElementById('currentPeriodBadge');
+            if(isScheduled) badge.innerHTML = `<span class="bg-theme-secondary/10 text-theme-secondary px-2 py-0.5 rounded text-[10px] font-bold border border-theme-secondary/20"><i class="fa-solid fa-clock"></i> คาบ ${p}: ตามตาราง</span>`; else badge.innerHTML = ``;
+            if(!room || room.students.length===0) { document.getElementById('noStudentsState').classList.remove('hidden'); document.getElementById('noStudentsState').classList.add('flex'); document.getElementById('studentTableBody').innerHTML = ''; document.getElementById('studentCountBadge').innerText = '0'; document.getElementById('saveFooter').classList.add('hidden'); } else { document.getElementById('noStudentsState').classList.add('hidden'); document.getElementById('noStudentsState').classList.remove('flex'); document.getElementById('studentCountBadge').innerText = room.students.length; document.getElementById('saveFooter').classList.remove('hidden'); renderRows(room.students); }
             updateStats();
+            renderToolbar();
+        }
+
+        function renderToolbar() {
+            const toolbar = document.getElementById('attendanceToolbar');
+            if(isLocked) {
+                toolbar.innerHTML = `
+                    <div class="flex items-center gap-2 bg-yellow-50 px-3 py-1.5 rounded-lg border border-yellow-200">
+                         <span class="text-xs font-bold text-yellow-700"><i class="fa-solid fa-lock"></i> ดูย้อนหลัง</span>
+                         <button onclick="unlockAttendance()" class="text-xs font-bold bg-yellow-400 text-white px-3 py-1 rounded shadow hover:bg-yellow-500 transition">
+                            <i class="fa-solid fa-key mr-1"></i> แก้ไขข้อมูล
+                        </button>
+                    </div>
+                `;
+            } else {
+                toolbar.innerHTML = `
+                    <button onclick="markAll('present')" class="text-xs font-bold bg-green-100 text-green-700 px-4 py-2 rounded-lg hover:bg-green-200 transition shadow-sm hover:shadow">
+                        <i class="fa-solid fa-check-double mr-1"></i> มาครบ
+                    </button>
+                    
+                    <button onclick="resetToday()" class="text-xs font-bold bg-red-50 text-red-600 px-3 py-2 rounded-lg hover:bg-red-100 transition shadow-sm border border-red-100" title="ล้างข้อมูล">
+                        <i class="fa-solid fa-rotate-left mr-1"></i> รีเซ็ต
+                    </button>
+                    
+                    <div class="w-px h-5 bg-theme-secondary/30 mx-1"></div>
+                    <button onclick="openManageStudentsModal()" class="text-xs font-medium bg-white border border-theme-secondary/30 text-theme-primary px-3 py-2 rounded-lg hover:bg-theme-bg transition shadow-sm">
+                        <i class="fa-solid fa-user-pen mr-1"></i> แก้ไข
+                    </button>
+                    <button onclick="openImportModal()" class="text-xs font-medium bg-white border border-theme-secondary/30 text-theme-primary px-3 py-2 rounded-lg hover:bg-theme-bg transition shadow-sm">
+                        <i class="fa-solid fa-file-import mr-1"></i> Excel
+                    </button>
+                `;
+            }
+        }
+
+        function unlockAttendance() {
+            isLocked = false;
+            renderMain(); // Re-render to enable buttons
         }
 
         function renderRows(students) {
             const tbody = document.getElementById('studentTableBody'); tbody.innerHTML = '';
-            const date = document.getElementById('dateInput').value;
-            const key = `${currentCourseId}_${date}`;
-            const att = appData.attendance[key] || {};
-            const nts = appData.notes[key] || {};
+            const key = getStorageKey(); const att = appData.attendance[key] || {}; const nts = appData.notes[key] || {};
             
-            const btns = (i, s) => ['present','absent','late','leave'].map(t => {
-                const c = {present:'green',absent:'red',late:'yellow',leave:'blue'}[t];
-                const icon = {present:'check',absent:'xmark',late:'clock',leave:'envelope'}[t];
-                const txt = {present:'มา',absent:'ขาด',late:'สาย',leave:'ลา'}[t];
-                const active = s === t; // Modified: Only active if strictly equal, no default 'present'
-                
-                const baseClass = "px-2 py-1.5 rounded-md flex items-center gap-1.5 text-xs transition border";
-                const activeClass = `bg-${c}-500 text-white border-${c}-600 shadow-sm font-medium`;
-                const inactiveClass = `bg-white text-slate-400 border-slate-200 hover:bg-${c}-50 hover:text-${c}-600`;
-                
-                return `<button onclick="setStatus(${i},'${t}')" class="${baseClass} ${active?activeClass:inactiveClass}">
-                    <i class="fa-solid fa-${icon}"></i>
-                    <span>${txt}</span>
-                </button>`;
-            }).join('');
+            // Lock Logic
+            // Remove inline opacity, handle in classes
+            const disabledAttr = isLocked ? 'disabled' : '';
+            const inputDisabled = isLocked ? 'disabled' : '';
 
+            const statusMap = {present:'มา',absent:'ขาด',late:'สาย',leave:'ลา'};
+            const statusColor = {present:'text-green-600',absent:'text-red-600',late:'text-yellow-600',leave:'text-blue-600'};
+
+            const btns = (i, s) => ['present','absent','late','leave'].map(t => {
+                const c = {present:'green',absent:'red',late:'yellow',leave:'blue'}[t]; 
+                const icon = {present:'check',absent:'xmark',late:'clock',leave:'envelope'}[t]; 
+                const txt = {present:'มา',absent:'ขาด',late:'สาย',leave:'ลา'}[t]; 
+                const active = s === t; 
+                
+                // Dynamic Classes
+                let baseClass = "px-2 py-1.5 rounded-md flex items-center gap-1.5 text-xs transition border ";
+                let colorClass = "";
+                let lockClass = "";
+
+                if (active) {
+                    colorClass = `bg-${c}-500 text-white border-${c}-600 shadow-sm font-bold ring-1 ring-${c}-300`;
+                    if (isLocked) lockClass = "opacity-100 cursor-not-allowed"; // Keep selected bright
+                } else {
+                    colorClass = `bg-white text-slate-400 border-theme-secondary/30 hover:bg-${c}-50 hover:text-${c}-600`;
+                    if (isLocked) lockClass = "opacity-20 cursor-not-allowed grayscale"; // Fade unselected
+                }
+
+                return `<button ${disabledAttr} onclick="setStatus(${i},'${t}')" class="${baseClass} ${colorClass} ${lockClass}"><i class="fa-solid fa-${icon}"></i><span>${txt}</span></button>`;
+            }).join('');
+            
             students.forEach((s, i) => {
-                tbody.innerHTML += `
-                <tr class="bg-white hover:bg-slate-50 transition group">
+                const currentStatus = att[i];
+                let statusLabel = '';
+                if(currentStatus) {
+                    statusLabel = `<div class="text-[10px] font-bold mt-1.5 ${statusColor[currentStatus]} flex items-center justify-center gap-1"><i class="fa-solid fa-circle-check"></i> บันทึกแล้ว: ${statusMap[currentStatus]}</div>`;
+                } else if(isLocked) {
+                     statusLabel = `<div class="text-[10px] font-bold mt-1.5 text-slate-300 flex items-center justify-center gap-1"><i class="fa-solid fa-circle-question"></i> ยังไม่เช็ค</div>`;
+                }
+
+                tbody.innerHTML += `<tr class="bg-white hover:bg-theme-bg transition group border-b border-theme-secondary/10">
                     <td class="px-4 py-3 text-center text-slate-400 font-mono text-xs">${i+1}</td>
                     <td class="px-4 py-3 text-slate-600 text-xs">${s.id}</td>
-                    <td class="px-4 py-3 font-medium text-slate-800">${s.name}</td>
-                    <td class="px-4 py-3"><div class="flex justify-center gap-1.5 flex-wrap">${btns(i, att[i])}</div></td>
-                    <td class="px-4 py-3"><input value="${nts[i]||''}" onchange="setNote(${i},this.value)" class="w-full text-xs border-b border-slate-200 focus:border-indigo-500 bg-transparent outline-none transition py-1" placeholder="..."></td>
+                    <td class="px-4 py-3 font-medium text-theme-primary">${s.name}</td>
+                    <td class="px-4 py-3">
+                        <div class="flex justify-center gap-1.5 flex-wrap">${btns(i, att[i])}</div>
+                        ${statusLabel}
+                    </td>
+                    <td class="px-4 py-3"><input ${inputDisabled} value="${nts[i]||''}" onchange="setNote(${i},this.value)" class="w-full text-xs border-b border-theme-secondary/30 focus:border-theme-accent bg-transparent outline-none transition py-1 ${isLocked?'text-slate-500 bg-slate-50':''}" placeholder="..."></td>
                 </tr>`;
             });
         }
-
-        // --- Logic Actions ---
-        function setStatus(i, s) {
-            const key = `${currentCourseId}_${document.getElementById('dateInput').value}`;
-            if(!appData.attendance[key]) appData.attendance[key]={};
-            appData.attendance[key][i] = s;
-            saveData(); renderMain(); 
-        }
-        function setNote(i, v) {
-            const key = `${currentCourseId}_${document.getElementById('dateInput').value}`;
-            if(!appData.notes[key]) appData.notes[key]={};
-            appData.notes[key][i] = v;
-            saveData();
-        }
-        function markAll(s) {
-            const r = appData.rooms[appData.courses[currentCourseId].roomId];
-            const key = `${currentCourseId}_${document.getElementById('dateInput').value}`;
-            if(!appData.attendance[key]) appData.attendance[key]={};
-            r.students.forEach((_,i) => appData.attendance[key][i]=s);
-            saveData(); renderMain();
-        }
-        function resetToday() {
-            if(!confirm('ต้องการล้างสถานะการเช็คชื่อของ "วันนี้" ทั้งหมดหรือไม่?')) return;
-            const key = `${currentCourseId}_${document.getElementById('dateInput').value}`;
-            delete appData.attendance[key];
-            delete appData.notes[key];
-            saveData();
-            renderMain();
-        }
+        function setStatus(i, s) { const key = getStorageKey(); if(!appData.attendance[key]) appData.attendance[key]={}; appData.attendance[key][i] = s; saveData(); renderMain(); }
+        function setNote(i, v) { const key = getStorageKey(); if(!appData.notes[key]) appData.notes[key]={}; appData.notes[key][i] = v; saveData(); }
+        function markAll(s) { const r = appData.rooms[appData.courses[currentCourseId].roomId]; const key = getStorageKey(); if(!appData.attendance[key]) appData.attendance[key]={}; r.students.forEach((_,i) => appData.attendance[key][i]=s); saveData(); renderMain(); }
+        function resetToday() { if(!confirm('ต้องการล้างสถานะของ "คาบนี้" หรือไม่?')) return; const key = getStorageKey(); delete appData.attendance[key]; delete appData.notes[key]; saveData(); renderMain(); }
         function updateStats() {
-            if(!currentCourseId) return;
-            const c = calculateStats('daily');
-            document.getElementById('countPresent').innerText = c.present;
-            document.getElementById('countAbsent').innerText = c.absent;
-            document.getElementById('countLate').innerText = c.late;
-            document.getElementById('countLeave').innerText = c.leave;
+            if(!currentCourseId) return; const key = getStorageKey(); const records = appData.attendance[key] || {}; let c = { present: 0, absent: 0, late: 0, leave: 0 };
+            Object.values(records).forEach(s => { if(c[s] !== undefined) c[s]++ });
+            document.getElementById('countPresent').innerText = c.present; document.getElementById('countAbsent').innerText = c.absent; document.getElementById('countLate').innerText = c.late; document.getElementById('countLeave').innerText = c.leave;
         }
-        function loadAttendance() { renderMain(); }
+        function loadAttendance() { 
+            // Reset lock state when date changes (to avoid accidental edits on new date loaded)
+            // But if it's today, it should be unlocked.
+            const selDate = document.getElementById('dateInput').value;
+            const today = new Date().toISOString().split('T')[0];
+            isLocked = (selDate !== today);
+            
+            renderMain(); 
+        }
 
         // --- Modals & Helpers ---
         function closeModals() { document.querySelectorAll('.fixed').forEach(m => m.classList.add('hidden')); }
         function openAddCourseModal() { document.getElementById('addCourseModal').classList.remove('hidden'); }
-        function openEditCourseModal() { 
-            if(!currentCourseId) return;
-            const c = appData.courses[currentCourseId];
-            document.getElementById('editSubjectName').value=c.subject;
-            document.getElementById('editRoomName').value=appData.rooms[c.roomId].name;
-            document.getElementById('editCourseModal').classList.remove('hidden');
-        }
-        function openManageStudentsModal() {
-            if(!currentCourseId) return;
-            const r = appData.rooms[appData.courses[currentCourseId].roomId];
-            const list = document.getElementById('manageStudentList'); list.innerHTML='';
-            r.students.forEach((s,i) => list.innerHTML+=`<tr class="border-b"><td class="p-2 text-slate-500">${s.id}</td><td class="p-2 font-medium">${s.name}</td><td class="p-2 text-right"><button onclick="remStu(${i})" class="text-red-400"><i class="fa-solid fa-trash"></i></button></td></tr>`);
-            document.getElementById('manageStudentModal').classList.remove('hidden');
-        }
+        function openEditCourseModal() { if(!currentCourseId) return; const c = appData.courses[currentCourseId]; document.getElementById('editSubjectName').value=c.subject; document.getElementById('editRoomName').value=appData.rooms[c.roomId].name; document.getElementById('editCourseModal').classList.remove('hidden'); }
+        function openManageStudentsModal() { if(!currentCourseId) return; const r = appData.rooms[appData.courses[currentCourseId].roomId]; const list = document.getElementById('manageStudentList'); list.innerHTML=''; r.students.forEach((s,i) => list.innerHTML+=`<tr class="border-b"><td class="p-2 text-slate-500">${s.id}</td><td class="p-2 font-medium">${s.name}</td><td class="p-2 text-right"><button onclick="remStu(${i})" class="text-red-400"><i class="fa-solid fa-trash"></i></button></td></tr>`); document.getElementById('manageStudentModal').classList.remove('hidden'); }
         function openImportModal() { document.getElementById('importModal').classList.remove('hidden'); }
-        function openSyncModal() { 
-            if(appData.config.gasUrl) document.getElementById('gasUrlInput').value=appData.config.gasUrl;
-            document.getElementById('syncModal').classList.remove('hidden'); 
-        }
+        function openSyncModal() { if(appData.config.gasUrl) document.getElementById('gasUrlInput').value=appData.config.gasUrl; document.getElementById('syncModal').classList.remove('hidden'); }
 
         // --- CRUD Logic ---
         function generateUUID() { return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => (c==='x'?Math.random()*16|0:(Math.random()*16|0)&0x3|0x8).toString(16)); }
         function addNewCourse() {
-            const sub = document.getElementById('newSubjectName').value.trim();
-            const rm = document.getElementById('newRoomName').value.trim();
-            if(!sub || !rm) return;
-            let rId = Object.values(appData.rooms).find(r=>r.name===rm)?.id;
+            const sub = document.getElementById('newSubjectName').value.trim(); const rm = document.getElementById('newRoomName').value.trim();
+            if(!sub || !rm) return; let rId = Object.values(appData.rooms).find(r=>r.name===rm)?.id;
             if(!rId) { rId=generateUUID(); appData.rooms[rId]={id:rId,name:rm,students:[]}; }
             const cId=generateUUID(); appData.courses[cId]={id:cId,subject:sub,roomId:rId};
             saveData(); window.location.reload();
         }
-        function saveCourseChanges() {
-            appData.courses[currentCourseId].subject=document.getElementById('editSubjectName').value;
-            appData.rooms[appData.courses[currentCourseId].roomId].name=document.getElementById('editRoomName').value;
-            saveData(); window.location.reload();
-        }
-        function deleteCourse() {
-            if(confirm('ลบวิชานี้?')) { delete appData.courses[currentCourseId]; saveData(); window.location.reload(); }
-        }
-        function addStudentManual() {
-            const r = appData.rooms[appData.courses[currentCourseId].roomId];
-            r.students.push({id:document.getElementById('addStuId').value, name:document.getElementById('addStuName').value});
-            saveData(); openManageStudentsModal(); renderMain();
-            document.getElementById('addStuId').value=''; document.getElementById('addStuName').value='';
-        }
-        function remStu(i) {
-            appData.rooms[appData.courses[currentCourseId].roomId].students.splice(i,1);
-            saveData(); openManageStudentsModal(); renderMain();
-        }
-        function processImport() {
-            const lines=document.getElementById('importText').value.split('\n');
-            const r = appData.rooms[appData.courses[currentCourseId].roomId];
-            lines.forEach(l => {
-               const p=l.split(/[\t,]/).map(x=>x.trim());
-               if(p.length>0 && p[0]) r.students.push({id:p.length>1?p[0]:'', name:p.length>1?p[1]:p[0]});
-            });
-            saveData(); closeModals(); renderMain();
-        }
-        
-        // --- Sync Actions ---
-        function forceUpload() { uploadToCloud(); }
-        async function forceDownload() {
-            // FIX: Read directly from input
-            const inputUrl = document.getElementById('gasUrlInput').value.trim();
-            if(!inputUrl) return alert('กรุณาใส่ Web App URL ของท่านก่อนครับ');
-
-            // Update state
-            appData.config.gasUrl = inputUrl;
-            saveData();
-
-            showLoading('Downloading...');
-            try {
-                const res = await fetch(appData.config.gasUrl);
-                const data = await res.json();
-                if(data.version) { appData=data; saveData(); window.location.reload(); }
-                else alert('Data invalid or empty');
-            } catch(e) { alert('Error: '+e.message); }
-            hideLoading();
-        }
-        function showLoading(t) { document.getElementById('loadingText').innerText=t; document.getElementById('loadingOverlay').classList.remove('hidden'); }
-        function hideLoading() { document.getElementById('loadingOverlay').classList.add('hidden'); }
-        function migrateData(old) { /* Legacy support */ appData=old; appData.version=3; saveData(); }
-        function renderEmptyState() { 
-            document.getElementById('emptyState').classList.remove('hidden'); 
-            document.getElementById('emptyState').classList.add('flex');
-            document.getElementById('saveFooter').classList.add('hidden'); // Hide footer on empty state
-        }
-
-        function exportToCSV() {
-            if (!currentCourseId) return;
-            const c = appData.courses[currentCourseId];
-            const r = appData.rooms[c.roomId];
-            let csv = "\uFEFFวันที่,รหัสนักเรียน,ชื่อ,สถานะ,หมายเหตุ\n";
-            const map = {present:'มา', absent:'ขาด', late:'สาย', leave:'ลา'};
-            const dates = [...new Set(Object.keys(appData.attendance).filter(k=>k.startsWith(currentCourseId)).map(k=>k.split('_')[1])), document.getElementById('dateInput').value].sort();
-            dates.forEach(d => {
-                const k = `${currentCourseId}_${d}`;
-                r.students.forEach((s, i) => {
-                    // Fix CSV export to show '-' if undefined
-                    const status = appData.attendance[k]?.[i];
-                    const statusText = status ? map[status] : '-';
-                    csv += `${d},"${s.id}","${s.name}",${statusText},"${appData.notes[k]?.[i]||''}"\n`;
-                });
-            });
-            const link = document.createElement("a");
-            link.href = URL.createObjectURL(new Blob([csv], {type:'text/csv;charset=utf-8;'}));
-            link.download = `CheckName_${c.subject}.csv`;
-            document.body.appendChild(link); link.click(); document.body.removeChild(link);
-        }
+        function saveCourseChanges() { appData.courses[currentCourseId].subject=document.getElementById('editSubjectName').value; appData.rooms[appData.courses[currentCourseId].roomId].name=document.getElementById('editRoomName').value; saveData(); window.location.reload(); }
+        function deleteCourse() { if(confirm('ลบวิชานี้?')) { delete appData.courses[currentCourseId]; saveData(); window.location.reload(); } }
+        function addStudentManual() { const r = appData.rooms[appData.courses[currentCourseId].roomId]; r.students.push({id:document.getElementById('addStuId').value, name:document.getElementById('addStuName').value}); saveData(); openManageStudentsModal(); renderMain(); document.getElementById('addStuId').value=''; document.getElementById('addStuName').value=''; }
+        function remStu(i) { appData.rooms[appData.courses[currentCourseId].roomId].students.splice(i,1); saveData(); openManageStudentsModal(); renderMain(); }
+        function processImport() { const lines=document.getElementById('importText').value.split('\n'); const r = appData.rooms[appData.courses[currentCourseId].roomId]; lines.forEach(l => { const p=l.split(/[\t,]/).map(x=>x.trim()); if(p.length>0 && p[0]) r.students.push({id:p.length>1?p[0]:'', name:p.length>1?p[1]:p[0]}); }); saveData(); closeModals(); renderMain(); }
+        function migrateData(old) { appData=old; appData.version=5; appData.periodSettings=[]; saveData(); }
     </script>
 </body>
 </html>
